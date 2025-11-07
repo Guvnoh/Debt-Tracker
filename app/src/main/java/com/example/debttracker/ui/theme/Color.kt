@@ -1,4 +1,4 @@
-package com.example.test2.ui.theme
+package com.example.debttracker.ui.theme
 
 import androidx.compose.ui.graphics.Color
 
