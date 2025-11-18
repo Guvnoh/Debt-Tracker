@@ -29,39 +29,40 @@ import com.example.debttracker.models.SharedViewModel
 fun Records(vm: SharedViewModel, navController: NavController){
     val debtRecords by vm.debtors.collectAsState()
 
-    if (debtRecords.isEmpty()){
-        Column (
-            Modifier.fillMaxSize(),
-            verticalArrangement = Arrangement.SpaceBetween,
-            horizontalAlignment = Alignment.CenterHorizontally){
-            Text(
-                text = "No debt recorded yet!",
-                style = MaterialTheme.typography.headlineLarge,
-                color = MaterialTheme.colorScheme.primary
-            )
-            Button(onClick = {
-                navController.navigate(BottomNavItem.Add_Record.route) {
-                    launchSingleTop = true
-                }}) {
-                Text("Add new record")
+        if (debtRecords.isEmpty()){
+            Column (
+                Modifier.fillMaxSize(),
+                verticalArrangement = Arrangement.SpaceBetween,
+                horizontalAlignment = Alignment.CenterHorizontally){
+                Text(
+                    text = "No debt recorded yet!",
+                    style = MaterialTheme.typography.headlineLarge,
+                    color = MaterialTheme.colorScheme.primary
+                )
+                Button(onClick = {
+                    navController.navigate(BottomNavItem.AddRecord.route) {
+                        launchSingleTop = true
+                    }}) {
+                    Text("Add new record")
+                }
             }
-        }
 
-    }else{
-        LazyColumn(
-            modifier = Modifier
-                .background(Color.White)
-        ) {
+        }else{
+            LazyColumn(
+                modifier = Modifier
+                    .background(Color.White)
+            ) {
 
-            items(debtRecords){
-                    debtor ->
-                DebtCard(vm = vm, debtor = debtor, navC = navController)
+                items(debtRecords){
+                        debtorMap ->
+                    DebtCard(vm = vm, debtor = debtorMap, navC = navController)
+                }
             }
         }
     }
 
 
-}
+
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Preview

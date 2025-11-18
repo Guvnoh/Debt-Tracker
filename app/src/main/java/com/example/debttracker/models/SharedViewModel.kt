@@ -1,14 +1,11 @@
 package com.example.debttracker.models
 
 import android.util.Log
-import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.State
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import com.example.debttracker.root
-import com.example.debttracker.uidesigns.Debtor
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.ValueEventListener
@@ -20,24 +17,35 @@ class SharedViewModel: ViewModel() {
     private val _debtors = MutableStateFlow<List<Debtor?>>(emptyList())
     val debtors: StateFlow<List<Debtor?>> = getDebtorList()
 
+
+    fun updateDebtRecord(
+        item: String,
+        quantity: Double
+        ){
+
+
+        selectedRecord?.debt?.itemsOwed?.set(item, quantity)
+
+
+    }
+
     private fun getDebtorList(): MutableStateFlow<List<Debtor?>>{
         getDBDebtRecords {
-            debtList ->
-            _debtors.value = debtList
+            debtMap ->
+            _debtors.value = debtMap
         }
 
         return _debtors
     }
 
-    private fun getDBDebtRecords(onListReady: (MutableList<Debtor?>) -> Unit){
-        root.addValueEventListener( object: ValueEventListener{
+    private fun getDBDebtRecords(onListReady: (List<Debtor?>) -> Unit){
+        root.orderByChild("timeStamp").addValueEventListener( object: ValueEventListener{
             override fun onDataChange(snapshot: DataSnapshot) {
-                val debtRecords = mutableListOf<Debtor?>()
-                for (record in snapshot.children){
-                    val debtRecord = record.getValue(Debtor::class.java)
-                    debtRecords.add(debtRecord)
-                }
-                onListReady(debtRecords)
+
+                val debtors = snapshot.children.mapNotNull{
+                    it.getValue(Debtor::class.java)
+                }.sortedByDescending { it.timeStamp }
+                onListReady(debtors)
             }
 
             override fun onCancelled(error: DatabaseError) {

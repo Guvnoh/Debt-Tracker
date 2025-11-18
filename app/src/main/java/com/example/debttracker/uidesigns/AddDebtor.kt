@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
@@ -32,10 +33,13 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
+import com.example.debttracker.formatters.TimeAndDate
 import com.example.debttracker.models.BottomNavItem
-import com.example.debttracker.models.DebtClass
+import com.example.debttracker.models.Debt
 import com.example.debttracker.models.DebtType
+import com.example.debttracker.models.Debtor
 import com.example.debttracker.root
+import com.google.firebase.database.ServerValue
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
@@ -137,7 +141,8 @@ fun AddDebt(navController: NavController){
                     label = { Text("Enter no. of plastics") },
                     maxLines = 1,
                     modifier = Modifier
-                        .fillMaxWidth()
+                        .fillMaxWidth(),
+                   // keyboardOptions = KeyboardOptions.Default.keyboardType.Number
                 )
                 Button(
                     onClick = {
@@ -147,28 +152,49 @@ fun AddDebt(navController: NavController){
                             Toast.makeText(context, "Enter name!", Toast.LENGTH_SHORT).show()
                         } else {
                             debtorName = name
-                            val debt = DebtClass()
-                            entriesList.forEach {
+                            val dateAdded = TimeAndDate().GetDateString()
+                            val timeAdded = TimeAndDate().GetTimeString()
+                            val debt = Debt(timeAdded =timeAdded, dateAdded=dateAdded)
+                            entriesList.forEach { entry ->
+
                                 //sorted cash makes sure cash entries with commas don't cause errors
                                 val sortedAmount =
                                 //This ensures that the 'name' entries retain their original format
                                 //while the other entries e.g cash and empties are formatted
                                     //to remove commas and unnecessary spaces
-                                    if (it!=name)it.replace("[, ]".toRegex(), "")else it
-                                if (it.isNotBlank()){
-                                    when(it){
-                                        cash -> debt.addDebt(DebtType.MONEY, sortedAmount.toDoubleOrNull()?:0.0)
-                                        empties -> debt.addDebt(DebtType.EMPTY_CRATE, empties.toDoubleOrNull()?:0.0)
-                                        bottles -> debt.addDebt(DebtType.EMPTY_BOTTLE, bottles.toDoubleOrNull()?:0.0)
-                                        fullBottle -> debt.addDebt(DebtType.FULL_BOTTLE, fullBottle.toDoubleOrNull()?:0.0)
-                                        plastic -> debt.addDebt(DebtType.PLASTIC, plastic.toDoubleOrNull()?:0.0)
-                                        fulls -> debt.addDebt(DebtType.FULLS, fulls.toDoubleOrNull()?:0.0)
+                                    if (entry!=name)entry.replace("[, ]".toRegex(), "")else entry
+                                if (entry!=name && entry.isNotBlank()){
+                                    when(entry){
+                                        cash -> debt.itemsOwed?.set(
+                                            DebtType.Cash.name,
+                                            sortedAmount.toDoubleOrNull()?:0.0
+                                        )
+                                        empties -> debt.itemsOwed?.set(
+                                            DebtType.Empty.name,
+                                            sortedAmount.toDoubleOrNull()?:0.0
+                                        )
+                                        bottles -> debt.itemsOwed?.set(
+                                            DebtType.Bottle.name,
+                                            sortedAmount.toDoubleOrNull()?:0.0
+                                        )
+                                        fullBottle -> debt.itemsOwed?.set(
+                                            DebtType.Full_Bottle.name,
+                                            sortedAmount.toDoubleOrNull()?:0.0
+                                        )
+                                        plastic -> debt.itemsOwed?.set(
+                                            DebtType.Plastic.name,
+                                            sortedAmount.toDoubleOrNull()?:0.0
+                                        )
+                                        fulls -> debt.itemsOwed?.set(
+                                            DebtType.Fulls.name,
+                                            sortedAmount.toDoubleOrNull()?:0.0
+                                        )
                                     }
                                 }
                             }
 
                             navController.navigate(BottomNavItem.Records.route)
-                            saveRecord(Debtor(debtorName, debt))
+                            saveRecord(Debtor( name = debtorName, debt = debt))
                             Toast.makeText(context, "Debt record added!", Toast.LENGTH_SHORT).show()
 
                         }
@@ -187,8 +213,17 @@ fun AddDebt(navController: NavController){
 }
 
 fun saveRecord(debtor: Debtor){
-    val key:String = debtor.name?.lowercase()?:"noname"
-    root.child(key).setValue(debtor)
+    val key = root.push()
+//    debtor.id = key.key
+//    debtor.timeStamp = ServerValue.TIMESTAMP
+    val debtorToMap =
+        mapOf(
+        "id" to key.key,
+        "timeStamp" to ServerValue.TIMESTAMP,
+        "name" to debtor.name,
+        "debt" to debtor.debt
+    )
+    key.setValue(debtorToMap)
 
 }
 

@@ -2,16 +2,22 @@ package com.example.debttracker.uidesigns
 
 import android.os.Build
 import androidx.annotation.RequiresApi
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
@@ -21,15 +27,14 @@ import androidx.navigation.NavController
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.compose.rememberNavController
 import com.example.debttracker.formatters.TimeAndDate
+import com.example.debttracker.formatters.halfAndQuarter
 import com.example.debttracker.formatters.moneyFormat
-import com.example.debttracker.models.DebtClass
+import com.example.debttracker.models.Debt
 import com.example.debttracker.models.DebtType
+import com.example.debttracker.models.Debtor
 import com.example.debttracker.models.SharedViewModel
+import java.util.Locale
 
-data class Debtor(
-    var name: String? = null,
-    val debt: DebtClass? = null
-)
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
@@ -63,29 +68,52 @@ fun DebtCard(
                 .padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            // 🔹 Debtor Name
-            Text(
-                text = debtor?.name?:"noname",
-                style = MaterialTheme.typography.titleLarge,
-                color = MaterialTheme.colorScheme.primary,
-                fontWeight = FontWeight.Bold
-            )
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+
+                // 🔹 Debtor Name
+                Text(
+                    text = debtor?.name?:"noname",
+                    style = MaterialTheme.typography.titleLarge,
+                    color = MaterialTheme.colorScheme.primary,
+                    fontWeight = FontWeight.Bold
+                )
+                // Optional visual indicator for low stock
+                val active = (debtor?.debt?.active == true)
+                val indicatorColor = if (!active)
+                    MaterialTheme.colorScheme.error
+                else
+                    MaterialTheme.colorScheme.primary
+
+                Box(
+                    modifier = Modifier
+                        .size(12.dp)
+                        .background(indicatorColor, CircleShape)
+                )
+            }
 
             // 🔹 Debts List
             val debts = debtor?.debt?.itemsOwed?.keys
+            val debtTypes = DebtType.entries.toList()
             debts?.forEach { type ->
-                val debtString = debtor.debt.getDebtTypeString(type)
-                val amountOwed = debtor.debt.itemsOwed[type]
+                val debtType = debtTypes.first { it.name.lowercase() == type.lowercase() }
+                val amountOwed = debtor.debt.itemsOwed?.let { it[debtType.name]}
 
                 val displayAmount =
-                    if (debtString == "Cash") moneyFormat(amountOwed) else amountOwed.toString()
+                    if (debtType == DebtType.Cash) moneyFormat(amountOwed) else halfAndQuarter(amountOwed?:0.0)
 
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
-                    Text(
-                        text = "$debtString owed",
+                    val dtText = debtType.name.replaceFirstChar { if (it. isLowerCase()) it. titlecase(
+                        Locale. getDefault()) else it. toString() }
+                        Text(
+
+                        text = "$dtText owed",
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
@@ -102,6 +130,11 @@ fun DebtCard(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.End
             ) {
+                IconButton(
+                    onClick = {}
+                ) {
+                    
+                }
 
                 Text(
                     text = "${debtor?.debt?.dateAdded}, ${debtor?.debt?.timeAdded}",
@@ -113,24 +146,26 @@ fun DebtCard(
     }
 }
 
-
-
 @RequiresApi(Build.VERSION_CODES.O)
-@Preview(showBackground = true)
+@Preview
 @Composable
-fun DebtCardPreview(){
-
-    val new = DebtClass()
-    new.addDebt(DebtType.MONEY, 8500.0)
-    new.addDebt(DebtType.MONEY, 8500.0)
-    new.payDebt(DebtType.MONEY, 10000.0)
-    val debtor = Debtor("Mama Ejima", new)
+fun ShowDebtCard(){
     DebtCard(
         vm = viewModel(),
         debtor = Debtor(
+            id = "id",
+            timeStamp = 456L,
             name = "chuks",
-            debt = DebtClass(mutableMapOf(DebtType.MONEY.name to 5000.0))),
+            debt = Debt(
+                timeAdded = TimeAndDate().GetTimeString(),
+                dateAdded = TimeAndDate().GetDateString(),
+                lastEdited = "",
+                itemsOwed = mutableMapOf(
+                    DebtType.Cash.name to 6300.0
+                )
+
+            )
+        ),
         navC = rememberNavController()
     )
-
 }

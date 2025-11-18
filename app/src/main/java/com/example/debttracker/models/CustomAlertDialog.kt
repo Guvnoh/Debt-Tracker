@@ -1,0 +1,71 @@
+package com.example.debttracker.models
+
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.AlertDialogDefaults
+import androidx.compose.material3.BasicAlertDialog
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
+import com.example.debttracker.removeDebtFromDB
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun CustomAlertDialog(
+    debtor: Debtor,
+    navController: NavController,
+    dismissDialog: () -> Unit,
+
+){
+    //var deleteRecordDialog by remember {  mutableStateOf(false) }
+    BasicAlertDialog(
+        onDismissRequest = {}
+    ) {
+        Surface(
+            shape = MaterialTheme.shapes.large,
+            tonalElevation = AlertDialogDefaults.TonalElevation,
+        ){
+            Column (
+                modifier = Modifier.padding(24.dp)
+            ){
+                Text(
+                    text = "Delete debt record?",
+                    style = MaterialTheme.typography.titleLarge
+                )
+                Text(
+                    text = "Are you sure you want to delete this debt record?",
+                    style = MaterialTheme.typography.bodyMedium
+                )
+                Spacer(modifier = Modifier.height(24.dp))
+
+                Row (
+                    horizontalArrangement = Arrangement.End,
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    TextButton(onClick = {dismissDialog()}) {
+                        Text(text = "Cancel")
+
+                    }
+                    TextButton(onClick = {
+                        removeDebtFromDB(debtor)
+                        dismissDialog()
+                        navController.popBackStack()
+                    }) {
+                        Text(text = "Continue")
+                    }
+                }
+            }
+        }
+    }
+}

@@ -37,9 +37,8 @@ import com.example.debttracker.uidesigns.Records
 fun BottomNav() {
     val navController = rememberNavController()
     val items = listOf(
-        BottomNavItem.Add_Record,
+        BottomNavItem.AddRecord,
         BottomNavItem.Records,
-        BottomNavItem.Update_Record,
     )
     val viewModel: SharedViewModel = viewModel()
 
@@ -98,17 +97,17 @@ fun BottomNav() {
             navController = navController,
             modifier = Modifier.padding(innerPadding)
         ) {
-            composable(BottomNavItem.Add_Record.route) {
+            composable(BottomNavItem.AddRecord.route) {
                 AddDebt(navController)
             }
             composable(BottomNavItem.Records.route) {
                 Records(vm = viewModel, navController = navController)
             }
-            composable(BottomNavItem.Update_Record.route) {
-                Records(vm = viewModel, navController = navController)
-            }
+//            composable(BottomNavItem.Update_Record.route) {
+//                Records(vm = viewModel, navController = navController)
+//            }
             composable("ClearDebt") {
-                ClearDebt(viewModel.selectedRecord)
+                ClearDebt(navController = navController, debtor = viewModel.selectedRecord)
             }
         }
     }
