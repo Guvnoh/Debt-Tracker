@@ -17,16 +17,41 @@ class SharedViewModel: ViewModel() {
     private val _debtors = MutableStateFlow<List<Debtor?>>(emptyList())
     val debtors: StateFlow<List<Debtor?>> = getDebtorList()
 
+    private var _rows: MutableStateFlow<List<BottleRow>> = MutableStateFlow(
+        listOf(BottleRow("","")))
+    val rows: StateFlow<List<BottleRow>> = _rows
+    private var _newDebt: MutableStateFlow<Debt> = MutableStateFlow(Debt())
+    val newDebt: StateFlow<Debt> = _newDebt
 
-    fun updateDebtRecord(
+    fun setNewDebt(debt: Debt){
+        _newDebt.value = debt
+    }
+
+    fun updateRowQty(index: Int, qty: String){
+        _rows.value[index].qty = qty
+    }
+
+    fun updateRowType(index: Int,type: String){
+        _rows.value[index].type = type
+    }
+
+    fun addNewRow(row: BottleRow): MutableStateFlow<List<BottleRow>>{
+        val newRow = _rows.value + row
+        _rows.value = newRow
+        return _rows
+    }
+    fun removeRow(row: BottleRow,index: Int): MutableStateFlow<List<BottleRow>>{
+        val newRows = _rows.value - row
+        _rows.value =newRows
+        return _rows
+    }
+
+
+    fun updateNewDebt(
         item: String,
         quantity: Double
         ){
-
-
-        selectedRecord?.debt?.itemsOwed?.set(item, quantity)
-
-
+        _newDebt.value.itemsOwed?.set(item, quantity)
     }
 
     private fun getDebtorList(): MutableStateFlow<List<Debtor?>>{

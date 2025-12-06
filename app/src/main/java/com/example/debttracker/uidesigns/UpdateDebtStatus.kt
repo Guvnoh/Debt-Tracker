@@ -55,7 +55,19 @@ fun ClearDebt(
                 ){
 
                     Text("Update Debt Status")
-                    Text("${debtor?.name}", style = MaterialTheme.typography.bodyMedium)
+                    Row (
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        modifier = Modifier.fillMaxWidth()
+                    ){
+                        Text("${debtor?.name}", style = MaterialTheme.typography.bodyMedium)
+                        Text(
+                            text = "Date recorded: ${debtor?.debt?.dateAdded}, ${debtor?.debt?.timeAdded}",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            modifier = Modifier.padding(end = 5.dp)
+                        )
+                    }
                 }
             }
             )
@@ -70,45 +82,26 @@ fun ClearDebt(
         ) {
 
             if (debtor != null) {
-                Card(
-                    modifier = Modifier.fillMaxWidth(),
-                    elevation = CardDefaults.cardElevation(6.dp),
-                    shape = RoundedCornerShape(16.dp),
-                    colors = CardDefaults.cardColors(
-                        containerColor = MaterialTheme.colorScheme.surfaceVariant
-                    )
-                ) {
-                    Column(
-                        modifier = Modifier.padding(16.dp),
-                        verticalArrangement = Arrangement.spacedBy(12.dp)
+                // 🔹 Debts
+                val debtMap = debtor.debt?.itemsOwed
+                debtMap?.forEach { (type, amount) ->
+                    Card(
+                        modifier = Modifier.fillMaxWidth(),
+                        elevation = CardDefaults.cardElevation(6.dp),
+                        shape = RoundedCornerShape(16.dp),
+                        colors = CardDefaults.cardColors(
+                            containerColor = MaterialTheme.colorScheme.surfaceVariant
+                        )
                     ) {
-                        // 🔹 Date
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.SpaceBetween,
-                            modifier = Modifier.fillMaxWidth()
+                        Column(
+                            modifier = Modifier.padding(16.dp),
+                            verticalArrangement = Arrangement.spacedBy(12.dp)
                         ) {
-                            Text(
-                                text = "Date recorded: ${debtor.debt?.dateAdded}, ${debtor.debt?.timeAdded}",
-                                style = MaterialTheme.typography.bodySmall,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant
-                            )
-                            Options(
-                                setInactive = { deactivateRecord(debtor) },
-                                setActive = { reactivateRecord(debtor) },
-                                onDelete = {
-                                    deleteRecordDialog = true
-                                           },
-                                debtor = debtor
-                            )
-                        }
-
-                        // 🔹 Debts
-                        val debtMap = debtor.debt?.itemsOwed
-                        debtMap?.forEach { (type, amount) ->
+                            // 🔹 Date
                             Row(
-                                modifier = Modifier.fillMaxWidth(),
-                                horizontalArrangement = Arrangement.SpaceBetween
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.SpaceBetween,
+                                modifier = Modifier.fillMaxWidth()
                             ) {
                                 val label = when (type) {
                                     DebtType.Cash.name -> "Cash owed"
@@ -138,6 +131,23 @@ fun ClearDebt(
                                     style = MaterialTheme.typography.bodyMedium,
                                     fontWeight = FontWeight.Medium
                                 )
+
+                                Options(
+                                    setInactive = { deactivateRecord(debtor) },
+                                    setActive = { reactivateRecord(debtor) },
+                                    onDelete = {
+                                        deleteRecordDialog = true
+                                    },
+                                    debtor = debtor
+                                )
+                            }
+
+
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.SpaceBetween
+                            ) {
+
                             }
                         }
                     }
@@ -149,52 +159,14 @@ fun ClearDebt(
                     color = MaterialTheme.colorScheme.error
                 )
             }
+                }
+
             if (deleteRecordDialog) {
                 debtor?.let {
                     CustomAlertDialog(it, navController = navController) {deleteRecordDialog = false}
                 }
-//                BasicAlertDialog(
-//                    onDismissRequest = {}
-//                ) {
-//                    Surface(
-//                        shape = MaterialTheme.shapes.large,
-//                        tonalElevation = AlertDialogDefaults.TonalElevation,
-//                    ){
-//                        Column (
-//                            modifier = Modifier.padding(24.dp)
-//                        ){
-//                            Text(
-//                                text = "Delete debt record?",
-//                                style = MaterialTheme.typography.titleLarge
-//                            )
-//                            Text(
-//                                text = "Are you sure you want to delete this debt record?",
-//                                style = MaterialTheme.typography.bodyMedium
-//                            )
-//                            Spacer(modifier = Modifier.height(24.dp))
-//
-//                            Row (
-//                                horizontalArrangement = Arrangement.End,
-//                                modifier = Modifier.fillMaxWidth()
-//                            ) {
-//                                TextButton(onClick = {deleteRecordDialog = false}) {
-//                                    Text(text = "Cancel")
-//
-//                                }
-//                                TextButton(onClick = {
-//                                    if (debtor!= null){
-//                                        removeDebtFromDB(debtor)
-//                                    }
-//                                    deleteRecordDialog = false}) {
-//                                    Text(text = "Continue")
-//                                }
-//                            }
-//                        }
-//                    }
-//                }
             }
         }
-    }
 }
 
 @RequiresApi(Build.VERSION_CODES.O)

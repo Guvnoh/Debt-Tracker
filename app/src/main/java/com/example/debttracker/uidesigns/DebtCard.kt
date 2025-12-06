@@ -99,21 +99,26 @@ fun DebtCard(
             val debts = debtor?.debt?.itemsOwed?.keys
             val debtTypes = DebtType.entries.toList()
             debts?.forEach { type ->
-                val debtType = debtTypes.first { it.name.lowercase() == type.lowercase() }
-                val amountOwed = debtor.debt.itemsOwed?.let { it[debtType.name]}
+//                val debtType = debtTypes.first { it.name.lowercase() == type.lowercase() }
+                val amountOwed = debtor.debt?.itemsOwed?.let { it[type]}
+
 
                 val displayAmount =
-                    if (debtType == DebtType.Cash) moneyFormat(amountOwed) else halfAndQuarter(amountOwed?:0.0)
+                    if (type.lowercase() == DebtType.Cash.name.lowercase())
+                        moneyFormat(amountOwed)
+                    else
+                        halfAndQuarter(amountOwed?:0.0)
 
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
-                    val dtText = debtType.name.replaceFirstChar { if (it. isLowerCase()) it. titlecase(
+                    //capitalize first letter of the debt type e.g from 'cash owed' to 'Cash owed'
+                    val formattedType = type.replaceFirstChar { if (it. isLowerCase()) it. titlecase(
                         Locale. getDefault()) else it. toString() }
                         Text(
 
-                        text = "$dtText owed",
+                        text = "$formattedType owed",
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
@@ -159,9 +164,10 @@ fun ShowDebtCard(){
             debt = Debt(
                 timeAdded = TimeAndDate().GetTimeString(),
                 dateAdded = TimeAndDate().GetDateString(),
-                lastEdited = "",
+                //lastEdited = "",
                 itemsOwed = mutableMapOf(
-                    DebtType.Cash.name to 6300.0
+                    DebtType.Cash.name to 6300.0,
+                    "nawa" to 550.5
                 )
 
             )

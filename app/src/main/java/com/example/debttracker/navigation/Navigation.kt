@@ -14,7 +14,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -26,21 +25,15 @@ import com.example.debttracker.uidesigns.AddDebt
 import com.example.debttracker.uidesigns.ClearDebt
 import com.example.debttracker.uidesigns.Records
 
-//data class NavItem(
-//    val route: String,
-//    val label: String,
-//    val icon: ImageVector
-//)
-
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun BottomNav() {
+fun BottomNav(viewModel: SharedViewModel) {
     val navController = rememberNavController()
     val items = listOf(
         BottomNavItem.AddRecord,
         BottomNavItem.Records,
     )
-    val viewModel: SharedViewModel = viewModel()
+
 
     Scaffold(
         bottomBar = {
@@ -98,7 +91,7 @@ fun BottomNav() {
             modifier = Modifier.padding(innerPadding)
         ) {
             composable(BottomNavItem.AddRecord.route) {
-                AddDebt(navController)
+                AddDebt(navController, viewModel)
             }
             composable(BottomNavItem.Records.route) {
                 Records(vm = viewModel, navController = navController)
@@ -117,5 +110,6 @@ fun BottomNav() {
 @Preview(showBackground = true)
 @Composable
 fun ShowBottomBar(){
-    BottomNav()
+    val fvm = SharedViewModel()
+    BottomNav(viewModel = fvm)
 }
