@@ -1,5 +1,6 @@
 package com.example.debttracker.models
 
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -29,6 +30,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
@@ -135,7 +138,7 @@ fun AddBottleRow(row: BottleRow, vm: SharedViewModel){
                     }
                 }
                 Column(
-                    modifier = Modifier.wrapContentHeight()
+                    modifier = Modifier.fillMaxHeight()
                 ) {
                     IconButton(
                         onClick = {
@@ -143,7 +146,7 @@ fun AddBottleRow(row: BottleRow, vm: SharedViewModel){
 
                             vm.removeRow(row, index)
                         },
-                        modifier = Modifier.wrapContentHeight()
+                        modifier = Modifier.wrapContentHeight().border(width = 1.dp, shape = RectangleShape, color = Color.Green)
                     ) {
                         Icon(
                             imageVector = Icons.Filled.Close,
@@ -156,7 +159,7 @@ fun AddBottleRow(row: BottleRow, vm: SharedViewModel){
                         onClick = {
                             vm.addNewRow(BottleRow("", ""))
                         },
-                        modifier = Modifier.wrapContentHeight()
+                        modifier = Modifier.wrapContentHeight().border(width = 1.dp, shape = RectangleShape, color = Color.Green)
                     ) {
                         Icon(
                             imageVector = Icons.Filled.AddCircle,

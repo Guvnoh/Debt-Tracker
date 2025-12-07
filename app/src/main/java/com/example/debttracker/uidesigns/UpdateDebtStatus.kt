@@ -84,15 +84,16 @@ fun ClearDebt(
             if (debtor != null) {
                 // 🔹 Debts
                 val debtMap = debtor.debt?.itemsOwed
-                debtMap?.forEach { (type, amount) ->
-                    Card(
-                        modifier = Modifier.fillMaxWidth(),
-                        elevation = CardDefaults.cardElevation(6.dp),
-                        shape = RoundedCornerShape(16.dp),
-                        colors = CardDefaults.cardColors(
-                            containerColor = MaterialTheme.colorScheme.surfaceVariant
-                        )
-                    ) {
+                Card(
+                    modifier = Modifier.fillMaxWidth(),
+                    elevation = CardDefaults.cardElevation(6.dp),
+                    shape = RoundedCornerShape(16.dp),
+                    colors = CardDefaults.cardColors(
+                        containerColor = MaterialTheme.colorScheme.surfaceVariant
+                    )
+                ) {
+
+                    debtMap?.forEach { (type, amount) ->
                         Column(
                             modifier = Modifier.padding(16.dp),
                             verticalArrangement = Arrangement.spacedBy(12.dp)
@@ -108,9 +109,19 @@ fun ClearDebt(
                                     DebtType.Bottle.name -> "Bottles owed"
                                     DebtType.Empty.name -> "Empties balance"
                                     DebtType.Fulls.name -> "Fulls owed"
-                                    DebtType.Full_Bottle.name -> "Full bottles owed"
+                                    DebtType.FullBottle.name -> "Full bottles owed"
                                     DebtType.Plastic.name -> "Plastics owed"
-                                    else -> "Other"
+                                    "Cocacola" -> "Cocacola bottles owed"
+                                    "Hero12" -> "Hero(x12) bottles owed"
+                                    "Hero20" -> "Hero(x20) bottles owed"
+                                    "Hero24" -> "Hero(x24) bottles owed"
+                                    "Nbl12" -> "Nbl(x12) bottles owed"
+                                    "Nbl20" -> "Nbl(x20) bottles owed"
+                                    "Nbl24" -> "Nbl(x24) bottles owed"
+                                    "Guinness12" -> "Guinness(x12) bottles owed"
+                                    "Guinness18" -> "Guinness(x18) bottles owed"
+                                    "Guinness24" -> "Guinness(x24) bottles owed"
+                                    else -> "$type owed"
                                 }
 
                                 val displayAmount =
@@ -142,13 +153,6 @@ fun ClearDebt(
                                 )
                             }
 
-
-                            Row(
-                                modifier = Modifier.fillMaxWidth(),
-                                horizontalArrangement = Arrangement.SpaceBetween
-                            ) {
-
-                            }
                         }
                     }
                 }

@@ -56,16 +56,10 @@ fun AddDebt(navController: NavController, viewModel: SharedViewModel){
     var name by remember { mutableStateOf("") }
     var cash by remember { mutableStateOf("") }
     var empties by remember { mutableStateOf("") }
-    //val bottlesList = remember { mutableStateListOf<Pair<String, String>>()}
     var fulls by remember { mutableStateOf("") }
     var fullBottle by remember { mutableStateOf("") }
     var plastic by remember { mutableStateOf("") }
     val rows = viewModel.rows.collectAsState()
-    val debt = viewModel.newDebt.collectAsState()
-
-    val entriesList = listOf(
-        name, cash, empties, fulls, fullBottle, plastic
-    )
 
     val context = LocalContext.current
 
@@ -163,63 +157,6 @@ fun AddDebt(navController: NavController, viewModel: SharedViewModel){
                             debtorName = name
                             val dateAdded = TimeAndDate().GetDateString()
                             val timeAdded = TimeAndDate().GetTimeString()
-//                            viewModel.setNewDebt( Debt(timeAdded =timeAdded, dateAdded=dateAdded))
-//                            entriesList.forEach { entry ->
-//
-//                                //sorted cash makes sure cash entries with commas don't cause errors
-//                                val sortedAmount = if (entry!=name )entry.replace("[, ]".toRegex(), "")else entry
-//                                //This ensures that the 'name' entries retain their original format
-//                                //while the other entries e.g cash and empties are formatted
-//                                //to remove commas and unnecessary spaces
-//
-//// this section excludes the name from items added to items owed
-//                                if (entry!=name && entry.isNotBlank()){
-//                                    when(entry){
-//                                        cash -> viewModel.updateNewDebt(
-//                                            DebtType.Cash.name,
-//                                            sortedAmount.toDoubleOrNull()?:0.0
-//                                        )
-//                                        empties -> viewModel.updateNewDebt(
-//                                            DebtType.Empty.name,
-//                                            sortedAmount.toDoubleOrNull()?:0.0
-//                                        )
-//                                        fullBottle -> viewModel.updateNewDebt(
-//                                            DebtType.Full_Bottle.name,
-//                                            sortedAmount.toDoubleOrNull()?:0.0
-//                                        )
-//                                        plastic -> viewModel.updateNewDebt(
-//                                            DebtType.Plastic.name,
-//                                            sortedAmount.toDoubleOrNull()?:0.0
-//                                        )
-//                                        fulls -> viewModel.updateNewDebt(
-//                                            DebtType.Fulls.name,
-//                                            sortedAmount.toDoubleOrNull()?:0.0
-//                                        )
-//                                    }
-//                                }
-//                                val bottlesOwed = viewModel.rows.value
-//                                if (bottlesOwed.isNotEmpty()){
-//                                    bottlesOwed.forEach {
-//                                        bottle ->
-//                                        //bottle is a pair with the qty(double) as the first input
-//                                        //and the type as the second
-//                                     if ((bottle.qty.toDoubleOrNull()?:0.0)>0){
-//                                         val bottleQty = bottle.qty
-//                                         var bottleType = bottle.type
-//                                         bottleType = sanitizeKey( bottleType )
-//
-//                                         bottleQty.toDoubleOrNull()?.let{
-//                                             if(it>0.0){
-//                                                 viewModel.updateNewDebt(
-//                                                     bottleType,
-//                                                     bottleQty.toDoubleOrNull()?:0.0
-//                                                 )
-//                                             }
-//                                         }
-//                                     }
-//                                    }
-//                                }
-//                            }
 
                             //start
                             val items = mutableMapOf<String, Double>()

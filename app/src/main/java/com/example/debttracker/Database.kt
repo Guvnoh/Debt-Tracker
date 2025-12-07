@@ -5,7 +5,7 @@ import com.google.firebase.Firebase
 import com.google.firebase.database.database
 
 val DB = Firebase.database
-val root = DB.getReference("Boma").child("DebtRecords5")
+val root = DB.getReference("Boma").child("DebtRecords6")
 fun deactivateRecord(debt: Debtor){
     root.child(debt.id?:"").child("debt").child("active").setValue(false)
 
