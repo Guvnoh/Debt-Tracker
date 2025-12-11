@@ -1,12 +1,18 @@
 package com.example.debttracker.models
 
 import androidx.compose.foundation.border
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.text.KeyboardOptions
@@ -34,6 +40,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -42,144 +49,132 @@ import kotlinx.coroutines.flow.first
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun AddBottleRow(row: BottleRow, vm: SharedViewModel){
+fun AddBottleRow(index: Int, vm: SharedViewModel) {
+
     var expanded by remember { mutableStateOf(false) }
-    val rows = vm.rows.collectAsState()
-    val index = rows.value.indexOf(row)
-    var qty by remember { mutableStateOf(row.qty) }
-    var type by remember { mutableStateOf(row.type) }
+    val row = vm.rows.collectAsState().value[index]
+
+
     Row(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(IntrinsicSize.Min)     // TextField decides height
+            .padding(6.dp)
+            .border(1.dp, Color.Gray.copy(alpha = 0.4f), shape = RectangleShape)
+            .padding(8.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
 
+        // ===============================
+        // Quantity Field
+        // ===============================
+        OutlinedTextField(
+            value = row.qty,
+            onValueChange = {
+                vm.updateRowQty(index, it)
+            },
+            label = { Text("Qty") },
+            singleLine = true,
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+            modifier = Modifier
+                .weight(0.6f)
+                .fillMaxHeight()
+        )
+
+        Spacer(modifier = Modifier.size(8.dp))
+
+        // ===============================
+        // Bottle Type (Dropdown)
+        // ===============================
         ExposedDropdownMenuBox(
             expanded = expanded,
-            onExpandedChange = { expanded = !expanded }
+            onExpandedChange = { expanded = !expanded },
+            modifier = Modifier.weight(1f)
         ) {
 
-            //val bottleQty by remember { mutableStateOf(bottleRow.qty) }
-            //var bottleType by remember { mutableStateOf(bottleRow.type) }
-            //var bottles by remember { mutableStateOf("") }
-            //bottle type is set for the row
-            //as the entire row represents one type of bottle owed
-            //multiple bottle types are added by adding new rows
+            OutlinedTextField(
+                value = row.type,
+                onValueChange = {
+                    vm.updateRowType(index, it)
+                },
+                label = {
+                    Text(
+                        text = "Bottle Type",
+                        overflow = TextOverflow.Ellipsis,
+                        maxLines = 1,
 
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically
+                    ) },
+                trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded) },
+                singleLine = true,
+                modifier = Modifier
+                    .menuAnchor()
+                    .fillMaxHeight()
+            )
+
+            ExposedDropdownMenu(
+                expanded = expanded,
+                onDismissRequest = { expanded = false }
             ) {
-
-                OutlinedTextField(
-                    value = qty,
-                    onValueChange = {
-                        qty = it
-                        //rows[index] = rows[index].copy(qty = it)
-                        row.qty = it
-                        vm.updateRowQty(index, it)
-
-                    },
-                    label = {
-                        Text(
-                            text = "Enter no. of bottles",
-                            fontSize = 15.sp,
-                            fontWeight = FontWeight.Bold,
-                        )
-                    },
-                    singleLine = true,
-                    keyboardOptions = KeyboardOptions(
-                        keyboardType = KeyboardType.Number
-                    ),
-                    modifier = Modifier
-                        .wrapContentWidth()
-                        .weight(1f)
-                )
-
-
-                OutlinedTextField(
-                    value = type,
-                    onValueChange = {
-//                            type = it
-//                            bottleRow.type = it
-                        //viewModel.updateRowType(index, it)
-                        row.type = it
-                        vm.updateRowType(index, it)
-                    },
-                    label = { Text("Bottle Type") },
-                    trailingIcon = {
-                        ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded)
-                    },
-                    singleLine = true,
-                    modifier = Modifier
-                        .menuAnchor()
-                        .weight(1f)
-                )
-
-                ExposedDropdownMenu(
-                    expanded = expanded,
-                    onDismissRequest = { expanded = false }
-                ) {
-
-                    BottleType.entries.forEach { selectedBottle ->
-                        DropdownMenuItem(
-                            enabled = row.qty.toDoubleOrNull() != null,
-                            text = { Text(selectedBottle.name) },
-                            onClick = {
-                                type = selectedBottle.name
-                                vm.updateRowType(index,type)
-                                expanded = false
-                                // rows[index] = rows[index].copy(type = selectedBottle.name)
-
-                                //this should change the existing bottle type to the selected option
-                                // from the dropdown menu if not already done by onchange in the type text field...
-                                // row.type = selectedBottle.name
-                            }
-                        )
-                    }
-                }
-                Column(
-                    modifier = Modifier.fillMaxHeight()
-                ) {
-                    IconButton(
+                BottleType.entries.forEach { selected ->
+                    DropdownMenuItem(
+                        enabled = row.qty.toDoubleOrNull() != null,
+                        text = { Text(selected.name) },
                         onClick = {
-                            //if(rows.size>1) rows.removeAt(rows.lastIndex)
-
-                            vm.removeRow(row, index)
-                        },
-                        modifier = Modifier.wrapContentHeight().border(width = 1.dp, shape = RectangleShape, color = Color.Green)
-                    ) {
-                        Icon(
-                            imageVector = Icons.Filled.Close,
-                            contentDescription = "",
-
-                            )
-                    }
-
-                    IconButton(
-                        onClick = {
-                            vm.addNewRow(BottleRow("", ""))
-                        },
-                        modifier = Modifier.wrapContentHeight().border(width = 1.dp, shape = RectangleShape, color = Color.Green)
-                    ) {
-                        Icon(
-                            imageVector = Icons.Filled.AddCircle,
-                            "",
-                        )
-                    }
+                            vm.updateRowType(index, selected.name)
+                            expanded = false
+                        }
+                    )
                 }
+            }
+        }
+
+        Spacer(modifier = Modifier.size(10.dp))
+
+//Column for "add" and "remove" icon buttons
+        Column(
+            modifier = Modifier
+                .fillMaxHeight()
+                .width(48.dp),                // FIX: prevents overlapping
+            verticalArrangement = Arrangement.SpaceBetween,
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+//Remove button
+            IconButton(
+                onClick = { vm.removeRow(index) },
+                modifier = Modifier
+                    .size(32.dp)
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Close,
+                    contentDescription = "Remove",
+                    tint = Color.Red
+                )
+            }
+//Add button
+            IconButton(
+                onClick = { vm.addNewRow(BottleRow("", "")) },
+                modifier = Modifier
+                    .size(32.dp)
+            ) {
+                Icon(
+                    imageVector = Icons.Default.AddCircle,
+                    contentDescription = "Add",
+                    tint = Color(0xFF2ECC71)
+                )
             }
         }
     }
 }
+
 @Preview(showBackground = true)
 @Composable
 fun ShowRow(){
     AddBottleRow(
-        BottleRow("",""),
+        index = 0,
         viewModel()
     )
 }
 data class BottleRow(
-    var qty: String,
-    var type: String
+    val qty: String,
+    val type: String
 )

@@ -31,6 +31,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.compose.rememberNavController
+import com.example.debttracker.Screen
 import com.example.debttracker.formatters.TimeAndDate
 import com.example.debttracker.formatters.moneyFormat
 import com.example.debttracker.models.BottleType
@@ -56,10 +57,9 @@ fun DebtCard(
         elevation = CardDefaults.cardElevation(6.dp),
         onClick = {
             vm.selectedRecord = debtor
-            navC.navigate("ClearDebt") {
-                popUpTo(navC.graph.findStartDestination().id) { saveState = true }
+            navC.navigate(Screen.UpdateDebtScreen.route) {
+                popUpTo(navC.graph.findStartDestination().id)
                 launchSingleTop = true
-                restoreState = true
             }
         },
         colors = CardDefaults.cardColors(

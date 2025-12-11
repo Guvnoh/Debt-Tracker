@@ -23,16 +23,26 @@ class SharedViewModel: ViewModel() {
     private var _newDebt: MutableStateFlow<Debt> = MutableStateFlow(Debt())
     val newDebt: StateFlow<Debt> = _newDebt
 
+    fun clearDetails(){
+       _rows.value = _rows.value.map{
+        it.copy(qty = "", type = "")
+       }
+    }
+
     fun setNewDebt(debt: Debt){
         _newDebt.value = debt
     }
 
     fun updateRowQty(index: Int, qty: String){
-        _rows.value[index].qty = qty
+        _rows.value = _rows.value.toMutableList().also {
+         it[index] = it[index].copy(qty = qty)
+        }
     }
 
     fun updateRowType(index: Int,type: String){
-        _rows.value[index].type = type
+        _rows.value = _rows.value.toMutableList().also {
+            it[index] = it[index].copy(type = type)
+        }
     }
 
     fun addNewRow(row: BottleRow): MutableStateFlow<List<BottleRow>>{
@@ -40,8 +50,13 @@ class SharedViewModel: ViewModel() {
         _rows.value = newRow
         return _rows
     }
-    fun removeRow(row: BottleRow,index: Int): MutableStateFlow<List<BottleRow>>{
-        val newRows = _rows.value - row
+    fun removeRow(index: Int): MutableStateFlow<List<BottleRow>>{
+        val newRows = if (_rows.value.size>1){
+            _rows.value - _rows.value[index]
+        } else {
+            clearDetails()
+            _rows.value
+        }
         _rows.value =newRows
         return _rows
     }

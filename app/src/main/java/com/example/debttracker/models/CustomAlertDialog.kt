@@ -18,16 +18,22 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import androidx.navigation.NavGraph.Companion.findStartDestination
+import com.example.debttracker.Screen
 import com.example.debttracker.removeDebtFromDB
+import com.example.debttracker.removeSingleDebt
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CustomAlertDialog(
     debtor: Debtor,
+    debt: String,
     navController: NavController,
+    caseKey: DialogKey,
     dismissDialog: () -> Unit,
 
-){
+
+    ){
     //var deleteRecordDialog by remember {  mutableStateOf(false) }
     BasicAlertDialog(
         onDismissRequest = {}
@@ -58,9 +64,25 @@ fun CustomAlertDialog(
 
                     }
                     TextButton(onClick = {
-                        removeDebtFromDB(debtor)
+                        when (caseKey ){
+                            DialogKey.debtCard -> {
+                                removeSingleDebt(debtor = debtor, debt = debt)
+                                navController.popBackStack()
+//                                navController.navigate(Screen.UpdateDebtScreen.route)
+                                navController.navigate(Screen.UpdateDebtScreen.route) {
+                                    popUpTo(navController.graph.findStartDestination().id){
+                                        inclusive = true
+                                    }
+                                    launchSingleTop = true
+                                }
+                            }
+                            DialogKey.topAppBar -> {
+                                removeDebtFromDB(key=debtor.id.toString())
+                                navController.popBackStack()
+                            }
+                        }
                         dismissDialog()
-                        navController.popBackStack()
+
                     }) {
                         Text(text = "Continue")
                     }
@@ -68,4 +90,9 @@ fun CustomAlertDialog(
             }
         }
     }
+}
+
+enum class DialogKey{
+    topAppBar,
+    debtCard
 }

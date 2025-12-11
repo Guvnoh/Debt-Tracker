@@ -19,6 +19,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import com.example.debttracker.Screen
 import com.example.debttracker.models.BottomNavItem
 import com.example.debttracker.models.SharedViewModel
 import com.example.debttracker.uidesigns.AddDebt
@@ -99,7 +100,7 @@ fun BottomNav(viewModel: SharedViewModel) {
 //            composable(BottomNavItem.Update_Record.route) {
 //                Records(vm = viewModel, navController = navController)
 //            }
-            composable("ClearDebt") {
+            composable(Screen.UpdateDebtScreen.route) {
                 ClearDebt(navController = navController, debtor = viewModel.selectedRecord)
             }
         }

@@ -2,13 +2,14 @@ package com.example.debttracker.models
 
 enum class BottleType {
         Cocacola,
-        Hero12,
-        Hero20,
-        Hero24,
+        Hero,
+        Flying_Fish,
+        Beta_malt,
         Nbl12,
         Nbl20,
-        Nbl24,
-        Guinness12,
-        Guinness18,
-        Guinness24,
+        Amstel,
+        Maltina,
+        Orijin,
+        Medium_stout,
+        Small_Stout,
 }

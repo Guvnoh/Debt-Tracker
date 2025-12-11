@@ -51,169 +51,227 @@ import com.google.firebase.database.ServerValue
 @OptIn(ExperimentalMaterial3Api::class)
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
+fun AddDebt(navController: NavController, viewModel: SharedViewModel) {
 
-fun AddDebt(navController: NavController, viewModel: SharedViewModel){
     var name by remember { mutableStateOf("") }
     var cash by remember { mutableStateOf("") }
     var empties by remember { mutableStateOf("") }
     var fulls by remember { mutableStateOf("") }
     var fullBottle by remember { mutableStateOf("") }
     var plastic by remember { mutableStateOf("") }
-    val rows = viewModel.rows.collectAsState()
 
     val context = LocalContext.current
 
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .verticalScroll(rememberScrollState()),
+            .verticalScroll(rememberScrollState())
+            .padding(16.dp),
+        verticalArrangement = Arrangement.spacedBy(16.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
+
+        //=======================
+        //   PAGE HEADER
+        //=======================
+        Text(
+            text = "Add Debt Record",
+            style = MaterialTheme.typography.headlineMedium,
+            fontWeight = FontWeight.SemiBold,
+            color = MaterialTheme.colorScheme.primary
+        )
+
+        //=======================
+        //   DEBTOR INFO CARD
+        //=======================
         Card(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp),
-            elevation = CardDefaults.cardElevation(6.dp),
+            modifier = Modifier.fillMaxWidth(),
+            elevation = CardDefaults.cardElevation(4.dp),
             shape = RoundedCornerShape(16.dp)
         ) {
             Column(
-                modifier = Modifier.padding(16.dp),
-                verticalArrangement = Arrangement.spacedBy(8.dp)
+                modifier = Modifier.padding(20.dp),
+                verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
+
                 Text(
-                    "Add Debt Record",
-                    style = MaterialTheme.typography.headlineMedium,
-                    color = MaterialTheme.colorScheme.primary,
-                    fontWeight = FontWeight.Bold,
-                    modifier = Modifier.padding(bottom = 10.dp)
+                    "Debtor Information",
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Bold
                 )
 
                 OutlinedTextField(
                     value = name,
                     onValueChange = { name = it },
-                    label = { Text("Debtor's name") },
-                    singleLine = true,
-                    modifier = Modifier
-                        .fillMaxWidth()
+                    label = { Text("Debtor Name") },
+                    modifier = Modifier.fillMaxWidth(),
+                    singleLine = true
                 )
 
                 OutlinedTextField(
                     value = cash,
                     onValueChange = { cash = it },
-                    label = { Text("Enter cash amount") },
+                    label = { Text("Cash Amount") },
+                    modifier = Modifier.fillMaxWidth(),
                     singleLine = true,
-                    modifier = Modifier
-                        .fillMaxWidth()
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
                 )
+            }
+        }
 
-                //bottles go here
-                val rowList =  rows.value
-                rowList.forEach {
-                    AddBottleRow(it, viewModel)
+        //=======================
+        //   BOTTLE SECTION CARD
+        //=======================
+        Card(
+            modifier = Modifier.fillMaxWidth(),
+            elevation = CardDefaults.cardElevation(4.dp),
+            shape = RoundedCornerShape(16.dp)
+        ) {
+            Column(
+                modifier = Modifier.padding(20.dp),
+                verticalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+
+                Text(
+                    "Bottle Records",
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Bold
+                )
+                viewModel.rows.collectAsState().value.forEachIndexed { index, bottleRow ->
+                    AddBottleRow(index, viewModel)
                 }
 
 
+            }
+        }
+
+
+        //=======================
+        //   EXTRA ITEMS CARD
+        //=======================
+        Card(
+            modifier = Modifier.fillMaxWidth(),
+            elevation = CardDefaults.cardElevation(4.dp),
+            shape = RoundedCornerShape(16.dp)
+        ) {
+            Column(
+                modifier = Modifier.padding(20.dp),
+                verticalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+
+                Text(
+                    "Other Items",
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Bold
+                )
 
                 OutlinedTextField(
                     value = empties,
                     onValueChange = { empties = it },
-                    label = { Text("Enter no. of empties") },
-                    maxLines = 1,
-                    modifier = Modifier
-                        .fillMaxWidth()
+                    label = { Text("Empties") },
+                    modifier = Modifier.fillMaxWidth(),
+                    singleLine = true,
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
                 )
+
                 OutlinedTextField(
                     value = fulls,
                     onValueChange = { fulls = it },
-                    label = { Text("Enter no. of fulls") },
-                    maxLines = 1,
-                    modifier = Modifier
-                        .fillMaxWidth()
+                    label = { Text("Fulls") },
+                    modifier = Modifier.fillMaxWidth(),
+                    singleLine = true,
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
                 )
+
                 OutlinedTextField(
                     value = fullBottle,
                     onValueChange = { fullBottle = it },
-                    label = { Text("Enter no. of full bottles") },
-                    maxLines = 1,
-                    modifier = Modifier
-                        .fillMaxWidth()
+                    label = { Text("Full Bottles") },
+                    modifier = Modifier.fillMaxWidth(),
+                    singleLine = true,
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
                 )
+
                 OutlinedTextField(
                     value = plastic,
                     onValueChange = { plastic = it },
-                    label = { Text("Enter no. of plastics") },
-                    maxLines = 1,
-                    modifier = Modifier
-                        .fillMaxWidth(),
+                    label = { Text("Plastics") },
+                    modifier = Modifier.fillMaxWidth(),
+                    singleLine = true,
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
                 )
-                Button(
-                    onClick = {
-                        val debtorName: String
-
-                        if (name.isBlank()) {
-                            Toast.makeText(context, "Enter name!", Toast.LENGTH_SHORT).show()
-                        } else {
-                            debtorName = name
-                            val dateAdded = TimeAndDate().GetDateString()
-                            val timeAdded = TimeAndDate().GetTimeString()
-
-                            //start
-                            val items = mutableMapOf<String, Double>()
-
-                            fun addItem(key: String, value: String) {
-                                val n = value.replace(",", "").toDoubleOrNull()
-                                if (n != null && n > 0) items[key] = n
-                            }
-
-                            addItem("Cash", cash)
-                            addItem("Empty", empties)
-                            addItem("Fulls", fulls)
-                            addItem("Full_Bottle", fullBottle)
-                            addItem("Plastic", plastic)
-
-                            viewModel.rows.value.forEach { row ->
-                                val qty = row.qty.toDoubleOrNull() ?: 0.0
-                                if (qty > 0) items[sanitizeKey(row.type)] = qty
-                            }
-
-                            val debt = Debt(
-                                dateAdded = dateAdded,
-                                timeAdded = timeAdded,
-                                itemsOwed = items
-                            )
-
-                            saveRecord(
-                                Debtor(
-                                    name = debtorName,
-                                    debt = debt
-                                )
-                            )
-
-
-                            //finish
-
-                            navController.navigate(BottomNavItem.Records.route)
-
-                            Toast.makeText(context, "Debt record added!", Toast.LENGTH_SHORT).show()
-
-                        }
-                    },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(56.dp),
-                    shape = RoundedCornerShape(12.dp)
-                ) {
-                    Text("Add to Records", fontSize = 16.sp)
-                }
-
             }
         }
+
+        //=======================
+        //   SUBMIT BUTTON
+        //=======================
+        Button(
+            onClick = {
+                if (name.isBlank()) {
+                    Toast.makeText(context, "Please enter a name.", Toast.LENGTH_SHORT).show()
+                    return@Button
+                }
+                //handleSave(name, cash, empties, fulls, fullBottle, plastic, viewModel, navController, context)
+                val debtorName: String
+
+                if (name.isBlank()) {
+                    Toast.makeText(context, "Enter name!", Toast.LENGTH_SHORT).show()
+                } else {
+                    debtorName = name
+                    val dateAdded = TimeAndDate().GetDateString()
+                    val timeAdded = TimeAndDate().GetTimeString()
+
+                    //start
+                    val items = mutableMapOf<String, Double>()
+
+                    fun addItem(key: String, value: String) {
+                        val n = value.replace(",", "").toDoubleOrNull()
+                        if (n != null && n > 0) items[key] = n
+                    }
+
+                    addItem("Cash", cash)
+                    addItem("Empty", empties)
+                    addItem("Fulls", fulls)
+                    addItem("Full_Bottle", fullBottle)
+                    addItem("Plastic", plastic)
+
+                    viewModel.rows.value.forEach { row ->
+                        val qty = row.qty.toDoubleOrNull() ?: 0.0
+                        if (qty > 0) items[sanitizeKey(row.type)] = qty
+                    }
+
+                    val debt = Debt(
+                        dateAdded = dateAdded,
+                        timeAdded = timeAdded,
+                        itemsOwed = items
+                    )
+
+                    saveRecord(
+                        Debtor(
+                            name = debtorName,
+                            debt = debt
+                        )
+                    )
+
+
+                    //finish
+
+                    navController.navigate(BottomNavItem.Records.route)
+
+                    Toast.makeText(context, "Debt record added!", Toast.LENGTH_SHORT).show()
+
+                }
+            },
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(56.dp),
+            shape = RoundedCornerShape(14.dp)
+        ) {
+            Text("Add to Records", fontSize = 17.sp, fontWeight = FontWeight.SemiBold)
+        }
     }
-
 }
-
-
 
 fun saveRecord(debtor: Debtor){
     val recordRoot = root.push()
@@ -248,14 +306,3 @@ fun sanitizeKey(key: String): String {
         .replace("/", "_")
 }
 
-
-
-@RequiresApi(Build.VERSION_CODES.O)
-@Preview
-@Composable
-fun AddDebtPreview(){
-    val fvm = SharedViewModel()
-    AddDebt(
-        navController = rememberNavController(),
-        viewModel = fvm)
-}
