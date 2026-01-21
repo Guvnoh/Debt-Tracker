@@ -21,14 +21,15 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.example.debttracker.Screen
 import com.example.debttracker.models.BottomNavItem
-import com.example.debttracker.models.SharedViewModel
+import com.example.debttracker.models.AddDebtorViewModel
 import com.example.debttracker.uidesigns.AddDebt
-import com.example.debttracker.uidesigns.ClearDebt
+import com.example.debttracker.uidesigns.DebtDetailsScreen
 import com.example.debttracker.uidesigns.Records
+import com.example.debttracker.viewmodels.RecordsViewmodel
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun BottomNav(viewModel: SharedViewModel) {
+fun BottomNav(recordsViewModel: RecordsViewmodel, addDebtorViewModel: AddDebtorViewModel ) {
     val navController = rememberNavController()
     val items = listOf(
         BottomNavItem.AddRecord,
@@ -92,16 +93,16 @@ fun BottomNav(viewModel: SharedViewModel) {
             modifier = Modifier.padding(innerPadding)
         ) {
             composable(BottomNavItem.AddRecord.route) {
-                AddDebt(navController, viewModel)
+                AddDebt(navController, addDebtorViewModel)
             }
             composable(BottomNavItem.Records.route) {
-                Records(vm = viewModel, navController = navController)
+                Records(vm = recordsViewModel, navController = navController)
             }
 //            composable(BottomNavItem.Update_Record.route) {
 //                Records(vm = viewModel, navController = navController)
 //            }
             composable(Screen.UpdateDebtScreen.route) {
-                ClearDebt(navController = navController, debtor = viewModel.selectedRecord)
+                DebtDetailsScreen(navController = navController, debtRecord = recordsViewModel.selectedRecord)
             }
         }
     }
@@ -111,6 +112,7 @@ fun BottomNav(viewModel: SharedViewModel) {
 @Preview(showBackground = true)
 @Composable
 fun ShowBottomBar(){
-    val fvm = SharedViewModel()
-    BottomNav(viewModel = fvm)
+    val fvm = AddDebtorViewModel()
+    val rvm = RecordsViewmodel()
+    BottomNav(addDebtorViewModel = fvm, recordsViewModel =  rvm )
 }

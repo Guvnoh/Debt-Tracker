@@ -1,6 +1,6 @@
 package com.example.debttracker.models
 
-data class Debtor(
+data class DebtRecord(
     var id: String? = null,
     var timeStamp: Long? = null,
     var name: String? = null,

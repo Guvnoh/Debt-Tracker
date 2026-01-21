@@ -5,5 +5,5 @@ data class Debt(
     var dateAdded: String? = null,
     //var lastEdited: String? = null,
     var active: Boolean = true,
-    var itemsOwed: MutableMap<String, Double>? = mutableMapOf()
+    var itemsOwed: MutableMap<String, String>? = mutableMapOf()
 )

@@ -30,7 +30,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
-import com.example.debttracker.deactivateRecord
 import com.example.debttracker.formatters.TimeAndDate
 import com.example.debttracker.formatters.halfAndQuarter
 import com.example.debttracker.formatters.moneyFormat
@@ -38,31 +37,17 @@ import com.example.debttracker.models.BottleType
 import com.example.debttracker.models.CustomAlertDialog
 import com.example.debttracker.models.Debt
 import com.example.debttracker.models.DebtType
-import com.example.debttracker.models.Debtor
+import com.example.debttracker.models.DebtRecord
 import com.example.debttracker.models.Options
 import com.example.debttracker.models.DialogKey
-import com.example.debttracker.models.SharedViewModel
-import com.example.debttracker.reactivateRecord
+import com.example.debttracker.repositories.RecordsRepository
 
-@RequiresApi(Build.VERSION_CODES.O)
-@Preview(showBackground = true)
-@Composable
-fun ClearDebtDemo(){
-    val new = Debt(
-            timeAdded = TimeAndDate().GetTimeString(),
-            dateAdded = TimeAndDate().GetDateString(),
-            itemsOwed = mutableMapOf(
-                DebtType.Cash.name to 6300.0
-            )
-        )
-    val debtor = Debtor(name = "Mama Ejima", debt = new)
-    ClearDebt(debtor = debtor, navController = rememberNavController())
-}
+
 @OptIn(ExperimentalMaterial3Api::class)
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun ClearDebt(
-    debtor: Debtor?,
+fun DebtDetailsScreen(
+    debtRecord: DebtRecord?,
     navController: NavController,
 ) {
     var deleteRecordItemDialog by remember { mutableStateOf(false) }
@@ -84,7 +69,7 @@ fun ClearDebt(
                                 "Debt Details",
                                 style = MaterialTheme.typography.headlineSmall.copy(fontWeight = FontWeight.Bold),
                             )
-                            debtor?.let {
+                            debtRecord?.let {
                                 Text(
                                     text = it.name ?: "Unknown",
                                     style = MaterialTheme.typography.bodyMedium,
@@ -98,17 +83,17 @@ fun ClearDebt(
                             }
                         }
                         Options(
-                            setInactive = {deactivateRecord(debtor?:Debtor()) },
-                            setActive = { reactivateRecord(debtor?:Debtor()) },
+                            setInactive = {RecordsRepository.deactivateRecord(debtRecord?:DebtRecord()) },
+                            setActive = { RecordsRepository.reactivateRecord(debtRecord?:DebtRecord()) },
                             onDelete = {
                                 deleteEntireRecordDialog = true
                             },
-                            debtor = debtor?:Debtor()
+                            debtRecord = debtRecord?:DebtRecord()
                         )
                         if (deleteEntireRecordDialog) {
-                            debtor?.let {
+                            debtRecord?.let {
                                 CustomAlertDialog(
-                                    debtor=it,
+                                    debtRecord=it,
                                     debt=debtToDelete,
                                     navController=navController,
                                     caseKey = DialogKey.topAppBar
@@ -135,7 +120,7 @@ fun ClearDebt(
             // --------------------------------------------------------
             // No debt record
             // --------------------------------------------------------
-            if (debtor == null || debtor.debt?.itemsOwed.isNullOrEmpty()) {
+            if (debtRecord == null || debtRecord.debt?.itemsOwed.isNullOrEmpty()) {
                 Column(
                     modifier = Modifier.fillMaxSize(),
                     verticalArrangement = Arrangement.Center,
@@ -161,22 +146,8 @@ fun ClearDebt(
                 }
                 return bottleName
             }
-            val bottleTypeList = BottleType.entries.toList().map { it.name }
-            debtor.debt?.itemsOwed?.forEach { (type, amount) ->
-                val bottleName = getBottleName(type)
 
-                val label = when (type) {
-                    DebtType.Cash.name -> "Cash Owed"
-                    DebtType.Bottle.name -> "Bottles Owed"
-                    DebtType.Empty.name -> "Empties Balance"
-                    DebtType.Fulls.name -> "Fulls Owed"
-                    DebtType.FullBottle.name -> "Full Bottles Owed"
-                    DebtType.Plastic.name -> "Plastics Owed"
-                    else -> if (bottleTypeList.contains(type)) "$bottleName bottles owed" else "$type owed"
-                }
-
-                val displayAmount = if (type == DebtType.Cash.name) moneyFormat(amount)
-                else halfAndQuarter(amount)
+            debtRecord.debt?.itemsOwed?.forEach { (type, amount) ->
 
                 Card(
                     modifier = Modifier
@@ -194,44 +165,43 @@ fun ClearDebt(
                         horizontalArrangement = Arrangement.SpaceBetween
                     ) {
 
-                        Column(
-                            verticalArrangement = Arrangement.spacedBy(4.dp)
-                        ) {
-                            Text(
-                                text = label,
-                                style = MaterialTheme.typography.bodyMedium,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant
-                            )
-                            Text(
-                                text = displayAmount,
-                                style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Medium)
-                            )
-                        }
+                        Text(
+                            text = type,
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                        Text(
+                            text = amount,
+                            style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Medium)
+                        )
 
-                        // ------------------------------
+//                        Column(
+//                            verticalArrangement = Arrangement.spacedBy(4.dp)
+//                        ) {
+//
+//                        }
+
                         // Actions
-                        // ------------------------------
                         Options(
-                            setInactive = { deactivateRecord(debtor) },
-                            setActive = { reactivateRecord(debtor) },
+                            setInactive = { RecordsRepository.deactivateRecord(debtRecord) },
+                            setActive = { RecordsRepository.reactivateRecord(debtRecord) },
                             onDelete = {
                                 deleteRecordItemDialog = true
                                 debtToDelete = type
                                        },
-                            debtor = debtor
+                            debtRecord = debtRecord
                         )
                     }
                 }
             }
         }
 
-        // --------------------------------------------------------
         // Delete Confirmation Dialog
-        // --------------------------------------------------------
+
         if (deleteRecordItemDialog) {
-            debtor?.let {
+            debtRecord?.let {
                 CustomAlertDialog(
-                    debtor=it,
+                    debtRecord=it,
                     debt=debtToDelete,
                     navController=navController,
                     caseKey = DialogKey.debtCard
@@ -241,4 +211,17 @@ fun ClearDebt(
             }
         }
     }
+}
+
+@RequiresApi(Build.VERSION_CODES.O)
+@Preview(showBackground = true)
+@Composable
+fun ClearDebtDemo(){
+    val new = Debt(
+        timeAdded = TimeAndDate().GetTimeString(),
+        dateAdded = TimeAndDate().GetDateString(),
+        itemsOwed = mutableMapOf("Cash" to "6300")
+    )
+    val debtRecord = DebtRecord(name = "Mama Ejima", debt = new)
+    DebtDetailsScreen(debtRecord = debtRecord, navController = rememberNavController())
 }

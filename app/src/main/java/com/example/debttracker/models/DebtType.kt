@@ -5,7 +5,5 @@ enum class DebtType {
     Bottle,
     Empty,
     Plastic,
-    Fulls,
-    FullBottle
 }
 

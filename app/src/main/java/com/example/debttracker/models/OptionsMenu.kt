@@ -20,10 +20,10 @@ import androidx.compose.ui.unit.dp
 
 @Composable
 fun Options(
-    setInactive: (Debtor) -> Unit,
-    setActive: (Debtor) -> Unit,
-    onDelete: (Debtor) -> Unit,
-    debtor: Debtor
+    setInactive: (DebtRecord) -> Unit,
+    setActive: (DebtRecord) -> Unit,
+    onDelete: (DebtRecord) -> Unit,
+    debtRecord: DebtRecord
 ){
     var expanded by remember { mutableStateOf(false) }
     Box(
@@ -37,7 +37,7 @@ fun Options(
         }
         MaterialTheme(
             shapes = MaterialTheme.shapes.copy(
-                extraSmall = RoundedCornerShape(25.dp)  // ← DROPDOWN MENU SHAPE
+                extraSmall = RoundedCornerShape(25.dp)  // DROPDOWN MENU SHAPE
             ),
             content = {
                 DropdownMenu(
@@ -51,7 +51,7 @@ fun Options(
                         },
                         onClick = {
                             expanded = false
-                            setInactive(debtor)
+                            setInactive(debtRecord)
                         }
                     )
                     DropdownMenuItem(
@@ -60,7 +60,7 @@ fun Options(
                         },
                         onClick = {
                             expanded = false
-                            setActive(debtor)
+                            setActive(debtRecord)
                         }
                     )
                     DropdownMenuItem(
@@ -69,7 +69,7 @@ fun Options(
                         },
                         onClick = {
                             expanded = false
-                            onDelete(debtor)
+                            onDelete(debtRecord)
                         }
                     )
                     DropdownMenuItem(
@@ -78,7 +78,7 @@ fun Options(
                         },
                         onClick = {
                             expanded = false
-                            setInactive(debtor)
+                            setInactive(debtRecord)
                         }
                     )
                 }

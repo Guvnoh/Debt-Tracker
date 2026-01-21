@@ -20,13 +20,12 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import com.example.debttracker.Screen
-import com.example.debttracker.removeDebtFromDB
-import com.example.debttracker.removeSingleDebt
+import com.example.debttracker.repositories.RecordsRepository
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CustomAlertDialog(
-    debtor: Debtor,
+    debtRecord: DebtRecord,
     debt: String,
     navController: NavController,
     caseKey: DialogKey,
@@ -66,7 +65,7 @@ fun CustomAlertDialog(
                     TextButton(onClick = {
                         when (caseKey ){
                             DialogKey.debtCard -> {
-                                removeSingleDebt(debtor = debtor, debt = debt)
+                                RecordsRepository.removeSingleDebt(debtRecord = debtRecord, debt = debt)
                                 navController.popBackStack()
 //                                navController.navigate(Screen.UpdateDebtScreen.route)
                                 navController.navigate(Screen.UpdateDebtScreen.route) {
@@ -77,7 +76,7 @@ fun CustomAlertDialog(
                                 }
                             }
                             DialogKey.topAppBar -> {
-                                removeDebtFromDB(key=debtor.id.toString())
+                                RecordsRepository.removeDebtFromDB(key=debtRecord.id.toString())
                                 navController.popBackStack()
                             }
                         }

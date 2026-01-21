@@ -1,75 +1,3 @@
-//package com.example.debttracker.uidesigns
-//
-//import android.os.Build
-//import androidx.annotation.RequiresApi
-//import androidx.compose.foundation.background
-//import androidx.compose.foundation.layout.Arrangement
-//import androidx.compose.foundation.layout.Column
-//import androidx.compose.foundation.layout.fillMaxSize
-//import androidx.compose.foundation.lazy.LazyColumn
-//import androidx.compose.foundation.lazy.items
-//import androidx.compose.material3.Button
-//import androidx.compose.material3.MaterialTheme
-//import androidx.compose.material3.Text
-//import androidx.compose.runtime.Composable
-//import androidx.compose.runtime.collectAsState
-//import androidx.compose.runtime.getValue
-//import androidx.compose.ui.Alignment
-//import androidx.compose.ui.Modifier
-//import androidx.compose.ui.graphics.Color
-//import androidx.compose.ui.tooling.preview.Preview
-//import androidx.lifecycle.viewmodel.compose.viewModel
-//import androidx.navigation.NavController
-//import androidx.navigation.compose.rememberNavController
-//import com.example.debttracker.models.BottomNavItem
-//import com.example.debttracker.models.SharedViewModel
-//
-//@RequiresApi(Build.VERSION_CODES.O)
-//@Composable
-//fun Records(vm: SharedViewModel, navController: NavController){
-//    val debtRecords by vm.debtors.collectAsState()
-//
-//    if (debtRecords.isEmpty()){
-//        Column (
-//            Modifier.fillMaxSize(),
-//            verticalArrangement = Arrangement.SpaceBetween,
-//            horizontalAlignment = Alignment.CenterHorizontally){
-//            Text(
-//                text = "No debt recorded yet!",
-//                style = MaterialTheme.typography.headlineLarge,
-//                color = MaterialTheme.colorScheme.primary
-//            )
-//            Button(onClick = {
-//                navController.navigate(BottomNavItem.AddRecord.route) {
-//                    launchSingleTop = true
-//                }}) {
-//                Text("Add new record")
-//            }
-//        }
-//
-//    }else{
-//        LazyColumn(
-//            modifier = Modifier
-//                .background(Color.White)
-//        ) {
-//
-//            items(debtRecords){
-//                    debtorMap ->
-//                DebtCard(vm = vm, debtor = debtorMap, navC = navController)
-//            }
-//        }
-//    }
-//}
-//
-//
-//
-//
-//@RequiresApi(Build.VERSION_CODES.O)
-//@Preview
-//@Composable
-//fun ShowRecords(){
-//    Records(vm = viewModel(), navController = rememberNavController())
-//}
 package com.example.debttracker.uidesigns
 
 import android.os.Build
@@ -91,16 +19,14 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
-import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.compose.rememberNavController
-import com.example.debttracker.Screen
 import com.example.debttracker.models.BottomNavItem
-import com.example.debttracker.models.Debtor
-import com.example.debttracker.models.SharedViewModel
+import com.example.debttracker.models.DebtRecord
+import com.example.debttracker.viewmodels.RecordsViewmodel
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun Records(vm: SharedViewModel, navController: NavController) {
+fun Records(vm: RecordsViewmodel, navController: NavController) {
 
     val debtRecords by vm.debtors.collectAsState()
 
@@ -156,7 +82,7 @@ fun Records(vm: SharedViewModel, navController: NavController) {
                 Spacer(Modifier.height(6.dp))
 
                 Text(
-                    "Start by adding your first debtor record.",
+                    "CLick the button below to add your first debtor record.",
                     style = MaterialTheme.typography.bodyMedium,
                     color = Color.Gray
                 )
@@ -188,7 +114,7 @@ fun Records(vm: SharedViewModel, navController: NavController) {
                 items(debtRecords) { debtor ->
                     RecordCard(
                         vm = vm,
-                        debtor = debtor?: Debtor(),
+                        debtRecord = debtor?: DebtRecord(),
                         navController = navController
                     )
                 }
@@ -200,68 +126,7 @@ fun Records(vm: SharedViewModel, navController: NavController) {
 }
 
 
-// ================================================================
-// Modern Card Layout for each record
-// ================================================================
-@Composable
-fun RecordCard(
-    vm: SharedViewModel,
-    debtor: Debtor,
-    navController: NavController
-) {
-    Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(top = 4.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = Color.White
-        ),
-        elevation = CardDefaults.cardElevation(defaultElevation = 3.dp)
-    ) {
 
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp)
-        ) {
-
-            Text(
-                text = debtor.name.toString(),
-                style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
-                color = MaterialTheme.colorScheme.primary
-            )
-
-            Spacer(Modifier.height(4.dp))
-
-            Text(
-                text = "Added: ${debtor.debt?.dateAdded ?: "N/A"}",
-                style = MaterialTheme.typography.bodySmall,
-                color = Color.Gray
-            )
-
-            Spacer(Modifier.height(10.dp))
-
-            Button(
-                onClick = {
-                    // Navigate to a detailed record page
-                   // navController.navigate("record_details/${debtor.id}")
-                    vm.selectedRecord = debtor
-                    navController.navigate(Screen.UpdateDebtScreen.route) {
-                        popUpTo(navController.graph.findStartDestination().id) { saveState = true }
-                        launchSingleTop = true
-                        restoreState = true
-                    }
-                },
-                modifier = Modifier.align(Alignment.End)
-            ) {
-                Text("View")
-            }
-        }
-    }
-}
-
-
-// Preview
 @RequiresApi(Build.VERSION_CODES.O)
 @Preview
 @Composable
