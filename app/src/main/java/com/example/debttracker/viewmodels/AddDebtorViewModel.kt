@@ -1,4 +1,4 @@
-package com.example.debttracker.models
+package com.example.debttracker.viewmodels
 
 import android.content.Context
 import android.os.Build
@@ -12,6 +12,9 @@ import com.example.debttracker.DatabaseRefs
 import com.example.debttracker.formatters.TimeAndDate
 import com.example.debttracker.formatters.halfAndQuarter
 import com.example.debttracker.formatters.moneyFormat
+import com.example.debttracker.models.Debt
+import com.example.debttracker.models.RowData
+import com.example.debttracker.models.RowType
 import com.google.firebase.database.ServerValue
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -48,7 +51,7 @@ class AddDebtorViewModel: ViewModel() {
     }
 
     private fun clearDetails(index: Int, type: RowType){
-        if ( type == RowType.Empties ){
+        if ( type == RowType.Empties){
             val newList = _emptiesRows.value.toMutableList()
             newList[index] = RowData(qty = "", name = "")
             _emptiesRows.value = newList
@@ -119,7 +122,7 @@ class AddDebtorViewModel: ViewModel() {
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
-    fun createRecord(context: Context ): Debt{
+    fun createRecord(context: Context ): Debt {
         if (_customerName.value.isBlank()) {
             Toast.makeText(context, "Please enter a name.", Toast.LENGTH_SHORT).show()
             return Debt()
@@ -159,7 +162,7 @@ class AddDebtorViewModel: ViewModel() {
 
         }
     }
-    fun saveRecord(debt: Debt){
+    fun saveRecord(debt: Debt, context: Context){
         val recordRoot = DatabaseRefs.root.push()
         val key = recordRoot.key
         val debtorToMap =
@@ -170,6 +173,7 @@ class AddDebtorViewModel: ViewModel() {
                 "debt" to debt
             )
         recordRoot.setValue(debtorToMap)
+        Toast.makeText(context, "Debt record added!", Toast.LENGTH_SHORT).show()
 
     }
 

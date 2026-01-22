@@ -20,24 +20,27 @@ import androidx.navigation.NavController
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import com.example.debttracker.Screen
 import com.example.debttracker.models.DebtRecord
+import com.example.debttracker.models.SelectableCard
 import com.example.debttracker.viewmodels.RecordsViewmodel
 
 @Composable
 fun RecordCard(
     vm: RecordsViewmodel,
     debtRecord: DebtRecord,
-    navController: NavController
-) {
-    Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(top = 4.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = Color.White
-        ),
-        elevation = CardDefaults.cardElevation(defaultElevation = 3.dp)
-    ) {
+    navController: NavController,
+    selected: Boolean,
+    selectedItems: MutableList<DebtRecord>,
 
+) {
+    SelectableCard(
+        modifier = Modifier,
+        onClick = {vm.onRecordCardClick(
+            navController = navController, selectedItems = selectedItems, record = debtRecord
+        )},
+        //long press adds record to 'selected items' list ready for deletion
+        onLongPress = {vm.onCardLongClick(selectedItems, debtRecord)},
+        selected = selected
+    ) {
         Column(
             modifier = Modifier
                 .fillMaxWidth()
@@ -64,7 +67,7 @@ fun RecordCard(
                 onClick = {
                     // Navigate to a detailed record page
                     // navController.navigate("record_details/${debtor.id}")
-                    vm.selectedRecord = debtRecord
+                    vm.selectedRecord.value = debtRecord
                     navController.navigate(Screen.UpdateDebtScreen.route) {
                         popUpTo(navController.graph.findStartDestination().id) { saveState = true }
                         launchSingleTop = true

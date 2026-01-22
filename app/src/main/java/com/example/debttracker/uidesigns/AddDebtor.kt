@@ -30,9 +30,10 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import com.example.debttracker.Screen
 import com.example.debttracker.models.AddItemRow
-import com.example.debttracker.models.AddDebtorViewModel
 import com.example.debttracker.models.RowType
+import com.example.debttracker.viewmodels.AddDebtorViewModel
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
@@ -177,8 +178,8 @@ fun AddDebt(navController: NavController, viewModel: AddDebtorViewModel) {
         Button(
             onClick = {
                 val debt = viewModel.createRecord(context)
-                if (debt.itemsOwed!=null) viewModel.saveRecord(debt)
-                Toast.makeText(context, "Debt record added!", Toast.LENGTH_SHORT).show()
+                if (debt.itemsOwed!=null) viewModel.saveRecord(debt, context)
+                navController.navigate(Screen.Records.route)
             },
             modifier = Modifier
                 .fillMaxWidth()

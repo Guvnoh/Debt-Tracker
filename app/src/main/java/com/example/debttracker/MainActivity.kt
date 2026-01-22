@@ -7,9 +7,9 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.annotation.RequiresApi
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.example.debttracker.models.AddDebtorViewModel
 import com.example.debttracker.navigation.BottomNav
 import com.example.debttracker.ui.theme.DebtTrackerTheme
+import com.example.debttracker.viewmodels.AddDebtorViewModel
 import com.example.debttracker.viewmodels.RecordsViewmodel
 
 class MainActivity : ComponentActivity() {

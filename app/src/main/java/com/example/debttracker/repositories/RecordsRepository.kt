@@ -18,10 +18,7 @@ object RecordsRepository {
         recordsDB.child(debt.id?:"").child("debt").child("active").setValue(true)
 
     }
-    fun removeDebtFromDB(key: String){
-        //deletes an entire record using the id
-        recordsDB.child(key).removeValue()
-    }
+
     fun removeSingleDebt(debtRecord: DebtRecord, debt: String){
         //gets the id of the debt record
         val debtId = debtRecord.id?.let { recordsDB.child(it) }
@@ -29,6 +26,7 @@ object RecordsRepository {
         debtId?.child("debt")?.child("itemsOwed")?.child(debt)?.removeValue()
     }
     fun deleteDebtRecord(key: String){
+        //deletes an entire record using the id
         recordsDB.child(key).removeValue()
     }
     fun updateDebtRecord(debt: DebtRecord){

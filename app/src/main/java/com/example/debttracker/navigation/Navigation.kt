@@ -21,10 +21,10 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.example.debttracker.Screen
 import com.example.debttracker.models.BottomNavItem
-import com.example.debttracker.models.AddDebtorViewModel
 import com.example.debttracker.uidesigns.AddDebt
 import com.example.debttracker.uidesigns.DebtDetailsScreen
 import com.example.debttracker.uidesigns.Records
+import com.example.debttracker.viewmodels.AddDebtorViewModel
 import com.example.debttracker.viewmodels.RecordsViewmodel
 
 @RequiresApi(Build.VERSION_CODES.O)
@@ -38,6 +38,7 @@ fun BottomNav(recordsViewModel: RecordsViewmodel, addDebtorViewModel: AddDebtorV
 
 
     Scaffold(
+
         bottomBar = {
             NavigationBar(
                 tonalElevation = 4.dp,
@@ -60,15 +61,17 @@ fun BottomNav(recordsViewModel: RecordsViewmodel, addDebtorViewModel: AddDebtorV
                             }
                         },
                         icon = {
-                            Icon(
-                                imageVector = item.icon,
-                                contentDescription = item.title,
-                                tint = if (selected) {
-                                    MaterialTheme.colorScheme.primary
-                                } else {
-                                    MaterialTheme.colorScheme.onSurfaceVariant
-                                }
-                            )
+                            item.icon?.let {
+                                Icon(
+                                    imageVector = it,
+                                    contentDescription = item.title,
+                                    tint = if (selected) {
+                                        MaterialTheme.colorScheme.primary
+                                    } else {
+                                        MaterialTheme.colorScheme.onSurfaceVariant
+                                    }
+                                )
+                            }
                         },
                         label = {
                             Text(
@@ -102,7 +105,7 @@ fun BottomNav(recordsViewModel: RecordsViewmodel, addDebtorViewModel: AddDebtorV
 //                Records(vm = viewModel, navController = navController)
 //            }
             composable(Screen.UpdateDebtScreen.route) {
-                DebtDetailsScreen(navController = navController, debtRecord = recordsViewModel.selectedRecord)
+                DebtDetailsScreen(navController = navController, debtRecord = recordsViewModel.selectedRecord.value)
             }
         }
     }

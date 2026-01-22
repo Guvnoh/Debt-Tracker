@@ -76,7 +76,7 @@ fun CustomAlertDialog(
                                 }
                             }
                             DialogKey.topAppBar -> {
-                                RecordsRepository.removeDebtFromDB(key=debtRecord.id.toString())
+                                RecordsRepository.deleteDebtRecord(key=debtRecord.id.toString())
                                 navController.popBackStack()
                             }
                         }
