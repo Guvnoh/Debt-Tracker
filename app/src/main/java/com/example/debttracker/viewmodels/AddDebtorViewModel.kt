@@ -62,8 +62,11 @@ class AddDebtorViewModel: ViewModel() {
         }
     }
     fun clearAll(){
+        _customerName.value = ""
+        _cash.value = ""
         _emptiesRows.value = listOf(RowData("",""))
         _bottleRows.value = listOf(RowData("",""))
+        _plasticRows.value = listOf(RowData("",""))
     }
 
 //    fun setNewDebt(debt: Debt){

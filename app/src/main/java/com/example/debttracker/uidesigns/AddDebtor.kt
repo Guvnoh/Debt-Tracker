@@ -180,6 +180,7 @@ fun AddDebt(navController: NavController, viewModel: AddDebtorViewModel) {
                 val debt = viewModel.createRecord(context)
                 if (debt.itemsOwed!=null) viewModel.saveRecord(debt, context)
                 navController.navigate(Screen.Records.route)
+                viewModel.clearAll()
             },
             modifier = Modifier
                 .fillMaxWidth()
