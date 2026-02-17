@@ -30,20 +30,17 @@ fun CustomAlertDialog(
     navController: NavController,
     caseKey: DialogKey,
     dismissDialog: () -> Unit,
-
-
-    ){
-    //var deleteRecordDialog by remember {  mutableStateOf(false) }
+) {
     BasicAlertDialog(
-        onDismissRequest = {}
+        onDismissRequest = { dismissDialog() }
     ) {
         Surface(
             shape = MaterialTheme.shapes.large,
             tonalElevation = AlertDialogDefaults.TonalElevation,
-        ){
-            Column (
+        ) {
+            Column(
                 modifier = Modifier.padding(24.dp)
-            ){
+            ) {
                 Text(
                     text = "Delete debt record?",
                     style = MaterialTheme.typography.titleLarge
@@ -54,34 +51,32 @@ fun CustomAlertDialog(
                 )
                 Spacer(modifier = Modifier.height(24.dp))
 
-                Row (
+                Row(
                     horizontalArrangement = Arrangement.End,
                     modifier = Modifier.fillMaxWidth()
                 ) {
-                    TextButton(onClick = {dismissDialog()}) {
+                    TextButton(onClick = { dismissDialog() }) {
                         Text(text = "Cancel")
-
                     }
                     TextButton(onClick = {
-                        when (caseKey ){
+                        when (caseKey) {
                             DialogKey.debtCard -> {
                                 RecordsRepository.removeSingleDebt(debtRecord = debtRecord, debt = debt)
                                 navController.popBackStack()
-//                                navController.navigate(Screen.UpdateDebtScreen.route)
                                 navController.navigate(Screen.UpdateDebtScreen.route) {
-                                    popUpTo(navController.graph.findStartDestination().id){
+                                    popUpTo(navController.graph.findStartDestination().id) {
                                         inclusive = true
                                     }
                                     launchSingleTop = true
                                 }
                             }
+
                             DialogKey.topAppBar -> {
-                                RecordsRepository.deleteDebtRecord(key=debtRecord.id.toString())
+                                RecordsRepository.deleteDebtRecord(key = debtRecord.id.toString())
                                 navController.popBackStack()
                             }
                         }
                         dismissDialog()
-
                     }) {
                         Text(text = "Continue")
                     }
@@ -91,7 +86,7 @@ fun CustomAlertDialog(
     }
 }
 
-enum class DialogKey{
+enum class DialogKey {
     topAppBar,
     debtCard
 }

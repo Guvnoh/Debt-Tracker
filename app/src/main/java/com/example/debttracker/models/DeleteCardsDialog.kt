@@ -19,8 +19,8 @@ import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import com.example.debttracker.ui.theme.InactiveRed
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -29,18 +29,18 @@ fun DeleteCardsDialog(
     records: List<DebtRecord>,
     alert: MutableState<Boolean>,
     context: Context
-){
-    if (alert.value){
+) {
+    if (alert.value) {
         BasicAlertDialog(
-            onDismissRequest = {},
-        ){
+            onDismissRequest = { alert.value = false },
+        ) {
             Surface(
                 shape = MaterialTheme.shapes.large,
                 tonalElevation = AlertDialogDefaults.TonalElevation,
-            ){
-                Column (
+            ) {
+                Column(
                     modifier = Modifier.padding(24.dp)
-                ){
+                ) {
                     Text(
                         text = "Delete Record(s)?",
                         style = MaterialTheme.typography.titleLarge
@@ -51,13 +51,12 @@ fun DeleteCardsDialog(
                     )
                     Spacer(modifier = Modifier.height(24.dp))
 
-                    Row (
+                    Row(
                         horizontalArrangement = Arrangement.End,
                         modifier = Modifier.fillMaxWidth()
                     ) {
-                        TextButton(onClick = {alert.value = false}) {
+                        TextButton(onClick = { alert.value = false }) {
                             Text(text = "Cancel")
-
                         }
                         TextButton(onClick = {
                             onDelete(records)
@@ -66,7 +65,7 @@ fun DeleteCardsDialog(
                         }) {
                             Text(
                                 text = "Continue",
-                                color = Color.Red
+                                color = InactiveRed
                             )
                         }
                     }

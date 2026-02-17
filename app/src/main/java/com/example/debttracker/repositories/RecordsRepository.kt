@@ -35,6 +35,23 @@ object RecordsRepository {
         recordsDB.child(debt.id!!).child("oldRecords").setValue(newDebtList)
         deleteDebtRecord(debt.id?:"errorNoId")
     }
+
+    fun reduceItemQuantity(debtRecord: DebtRecord, itemKey: String, newValue: String) {
+        val id = debtRecord.id ?: return
+        val ref = recordsDB.child(id)
+
+        // Snapshot current debt to oldRecords
+        val oldDebtList = debtRecord.oldRecords ?: emptyList()
+        val newDebtList = oldDebtList + debtRecord.debt
+        ref.child("oldRecords").setValue(newDebtList)
+
+        // Update or remove the item
+        if (newValue.isBlank() || newValue == "0" || newValue == "₦0") {
+            ref.child("debt").child("itemsOwed").child(itemKey).removeValue()
+        } else {
+            ref.child("debt").child("itemsOwed").child(itemKey).setValue(newValue)
+        }
+    }
     fun getDBDebtRecords(onListReady: (List<DebtRecord?>) -> Unit){
         recordsDB.orderByChild("timeStamp").addValueEventListener( object: ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {

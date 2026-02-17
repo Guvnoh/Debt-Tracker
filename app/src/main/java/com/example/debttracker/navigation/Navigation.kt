@@ -2,6 +2,7 @@ package com.example.debttracker.navigation
 
 import android.os.Build
 import androidx.annotation.RequiresApi
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -90,6 +91,7 @@ fun BottomNav(recordsViewModel: RecordsViewmodel, addDebtorViewModel: AddDebtorV
             }
         }
     ) { innerPadding ->
+        val x = innerPadding
         NavHost(
             startDestination = BottomNavItem.Records.route,
             navController = navController,

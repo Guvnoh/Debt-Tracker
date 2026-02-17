@@ -12,38 +12,56 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 
 private val DarkColorScheme = darkColorScheme(
-    primary = Color(0xff2ab7ca),
-    secondary = Color(0xff7da2c8),
+    primary = TealPrimary,
     onPrimary = Color.Black,
+    primaryContainer = PrimaryContainerDark,
+    onPrimaryContainer = TealLight,
+    secondary = Color(0xFF7DA2C8),
     onSecondary = Color.White,
-    background = Color(0xff121212),
-    onBackground = Color(0xffeaeaea),
-    surface = Color(0xFF1e1e1e),
-    onSurface = Color(0xffeaeaea),
-    error = Color(0xffcf6679)
+    secondaryContainer = SecondaryContainerDark,
+    onSecondaryContainer = Color(0xFFD6E4F0),
+    tertiary = TertiaryDark,
+    onTertiary = Color.Black,
+    tertiaryContainer = TertiaryContainerDark,
+    onTertiaryContainer = TertiaryDark,
+    background = BackgroundDark,
+    onBackground = OnBackgroundDark,
+    surface = SurfaceDark,
+    onSurface = OnSurfaceDark,
+    surfaceVariant = SurfaceVariantDark,
+    onSurfaceVariant = OnSurfaceVariantDark,
+    outline = OutlineDark,
+    outlineVariant = OutlineVariantDark,
+    error = ErrorDark
 )
 
 private val LightColorScheme = lightColorScheme(
-    primary = Color(0xff2ab7ca),//Purple40,
-    secondary = Color(0xffa1c6ea),//PurpleGrey40,
-   // tertiary = Pink40,
-
-    // Other default colors to override
-    background = Color(0xfff8f9fa),//Color(0xFFFFFBFE),
-    surface = Color(0xFFFFFBFE),
+    primary = TealPrimary,
     onPrimary = Color.White,
+    primaryContainer = PrimaryContainerLight,
+    onPrimaryContainer = TealDark,
+    secondary = Color(0xFFA1C6EA),
     onSecondary = Color.Black,
+    secondaryContainer = SecondaryContainerLight,
+    onSecondaryContainer = Color(0xFF1A3A5C),
+    tertiary = TertiaryLight,
     onTertiary = Color.White,
-    onBackground = Color(0xff2d2d2d),//Color(0xFF1C1B1F),
-    onSurface = Color(0xff2d2d2d),//Color(0xFF1C1B1F),
-    error = Color(0xffb00020)
-
+    tertiaryContainer = TertiaryContainerLight,
+    onTertiaryContainer = Color(0xFF4E3600),
+    background = BackgroundLight,
+    onBackground = OnBackgroundLight,
+    surface = SurfaceLight,
+    onSurface = OnSurfaceLight,
+    surfaceVariant = SurfaceVariantLight,
+    onSurfaceVariant = OnSurfaceVariantLight,
+    outline = OutlineLight,
+    outlineVariant = OutlineVariantLight,
+    error = ErrorLight
 )
 
 @Composable
 fun DebtTrackerTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
-    // Dynamic color is available on Android 12+
     dynamicColor: Boolean = false,
     content: @Composable () -> Unit
 ) {
