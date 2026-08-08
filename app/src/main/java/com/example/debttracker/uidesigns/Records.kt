@@ -36,7 +36,6 @@ import com.example.debttracker.viewmodels.RecordsViewmodel
 import java.text.NumberFormat
 import java.util.Locale
 
-@OptIn(ExperimentalMaterial3Api::class)
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun Records(vm: RecordsViewmodel, navController: NavController) {
@@ -51,211 +50,202 @@ fun Records(vm: RecordsViewmodel, navController: NavController) {
     val alert = remember { mutableStateOf(false) }
     val selectedItems = remember { mutableStateListOf<DebtRecord>() }
 
-    Scaffold(
-        topBar = {
-            if (selectedItems.size > 0) {
-                TopAppBar(
-                    title = {
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.SpaceBetween
-                        ) {
-                            Text("${selectedItems.size} items selected")
-                            IconButton(
-                                onClick = { alert.value = true }
-                            ) {
-                                Icon(Icons.Default.Delete, "Delete records")
-                            }
-                        }
-                    }
-                )
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(MaterialTheme.colorScheme.background)
+    ) {
+        if (selectedItems.size > 0) {
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Text("${selectedItems.size} items selected")
+                IconButton(
+                    onClick = { alert.value = true }
+                ) {
+                    Icon(Icons.Default.Delete, "Delete records")
+                }
             }
         }
-    ) {
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(MaterialTheme.colorScheme.background)
-                .padding(it)
-        ) {
 
-            // Header
-            if (selectedItems.size == 0) {
-                Text(
-                    "Your Records",
-                    style = MaterialTheme.typography.headlineMedium.copy(
-                        fontWeight = FontWeight.Bold,
-                        color = MaterialTheme.colorScheme.primary
-                    ),
-                    modifier = Modifier.padding(horizontal = 16.dp, vertical = 16.dp)
+        // Header
+        if (selectedItems.size == 0) {
+            Text(
+                "Your Records",
+                style = MaterialTheme.typography.headlineMedium.copy(
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.primary
+                ),
+                modifier = Modifier.padding(horizontal = 16.dp, vertical = 16.dp)
+            )
+        }
+
+        // Empty State
+        if (totalRecords == 0 && searchQuery.isBlank()) {
+
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(20.dp),
+                verticalArrangement = Arrangement.Center,
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+
+                Image(
+                    painter = painterResource(id = android.R.drawable.ic_menu_info_details),
+                    contentDescription = "Empty",
+                    modifier = Modifier.size(120.dp),
+                    contentScale = ContentScale.Fit
                 )
-            }
 
-            // Empty State
-            if (totalRecords == 0 && searchQuery.isBlank()) {
+                Spacer(Modifier.height(24.dp))
 
-                Column(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(20.dp),
-                    verticalArrangement = Arrangement.Center,
-                    horizontalAlignment = Alignment.CenterHorizontally
+                Text(
+                    "No Records Yet",
+                    style = MaterialTheme.typography.headlineSmall.copy(fontWeight = FontWeight.Bold),
+                    color = MaterialTheme.colorScheme.primary
+                )
+
+                Spacer(Modifier.height(6.dp))
+
+                Text(
+                    "Click the button below to add your first debtor record.",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+
+                Spacer(Modifier.height(30.dp))
+
+                Button(
+                    onClick = {
+                        navController.navigate(BottomNavItem.AddRecord.route) {
+                            launchSingleTop = true
+                        }
+                    },
+                    modifier = Modifier.padding(12.dp)
                 ) {
+                    Text("Add New Record")
+                }
+            }
+        }
 
-                    Image(
-                        painter = painterResource(id = android.R.drawable.ic_menu_info_details),
-                        contentDescription = "Empty",
-                        modifier = Modifier.size(120.dp),
-                        contentScale = ContentScale.Fit
-                    )
+        // Records List with search + summary
+        else {
+            LazyColumn(
+                modifier = Modifier.weight(1f),
+                verticalArrangement = Arrangement.spacedBy(10.dp)
+            ) {
 
-                    Spacer(Modifier.height(24.dp))
-
-                    Text(
-                        "No Records Yet",
-                        style = MaterialTheme.typography.headlineSmall.copy(fontWeight = FontWeight.Bold),
-                        color = MaterialTheme.colorScheme.primary
-                    )
-
-                    Spacer(Modifier.height(6.dp))
-
-                    Text(
-                        "Click the button below to add your first debtor record.",
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-
-                    Spacer(Modifier.height(30.dp))
-
-                    Button(
-                        onClick = {
-                            navController.navigate(BottomNavItem.AddRecord.route) {
-                                launchSingleTop = true
+                // Search Bar
+                item {
+                    OutlinedTextField(
+                        value = searchQuery,
+                        onValueChange = { query -> vm.updateSearchQuery(query) },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 4.dp),
+                        placeholder = { Text("Search by name...") },
+                        leadingIcon = {
+                            Icon(Icons.Default.Search, contentDescription = "Search")
+                        },
+                        trailingIcon = {
+                            if (searchQuery.isNotEmpty()) {
+                                IconButton(onClick = { vm.updateSearchQuery("") }) {
+                                    Icon(Icons.Default.Close, contentDescription = "Clear search")
+                                }
                             }
                         },
-                        modifier = Modifier.padding(12.dp)
-                    ) {
-                        Text("Add New Record")
-                    }
+                        singleLine = true,
+                        shape = RoundedCornerShape(12.dp)
+                    )
                 }
-            }
 
-            // Records List with search + summary
-            else {
-                LazyColumn(
-                    modifier = Modifier.fillMaxSize(),
-                    verticalArrangement = Arrangement.spacedBy(10.dp)
-                ) {
-
-                    // Search Bar
-                    item {
-                        OutlinedTextField(
-                            value = searchQuery,
-                            onValueChange = { query -> vm.updateSearchQuery(query) },
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(horizontal = 4.dp),
-                            placeholder = { Text("Search by name...") },
-                            leadingIcon = {
-                                Icon(Icons.Default.Search, contentDescription = "Search")
-                            },
-                            trailingIcon = {
-                                if (searchQuery.isNotEmpty()) {
-                                    IconButton(onClick = { vm.updateSearchQuery("") }) {
-                                        Icon(Icons.Default.Close, contentDescription = "Clear search")
-                                    }
-                                }
-                            },
-                            singleLine = true,
-                            shape = RoundedCornerShape(12.dp)
+                // Summary Stats Card
+                item {
+                    Card(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 4.dp, vertical = 4.dp),
+                        shape = RoundedCornerShape(16.dp),
+                        colors = CardDefaults.cardColors(
+                            containerColor = MaterialTheme.colorScheme.primaryContainer
                         )
-                    }
-
-                    // Summary Stats Card
-                    item {
-                        Card(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(horizontal = 4.dp, vertical = 4.dp),
-                            shape = RoundedCornerShape(16.dp),
-                            colors = CardDefaults.cardColors(
-                                containerColor = MaterialTheme.colorScheme.primaryContainer
-                            )
+                    ) {
+                        Column(
+                            modifier = Modifier.padding(16.dp),
+                            verticalArrangement = Arrangement.spacedBy(8.dp)
                         ) {
-                            Column(
-                                modifier = Modifier.padding(16.dp),
-                                verticalArrangement = Arrangement.spacedBy(8.dp)
+                            Text(
+                                "Summary",
+                                style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
+                                color = MaterialTheme.colorScheme.onPrimaryContainer
+                            )
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.SpaceBetween
                             ) {
+                                SummaryItem("Total", "$totalRecords", MaterialTheme.colorScheme.onPrimaryContainer)
+                                SummaryItem("Active", "$activeCount", ActiveGreen)
+                                SummaryItem("Inactive", "$inactiveCount", InactiveRed)
+                            }
+                            if (totalCashOwed > 0) {
+                                val formatted = NumberFormat.getNumberInstance(Locale("en", "NG"))
+                                    .format(totalCashOwed)
                                 Text(
-                                    "Summary",
-                                    style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
+                                    "Total Cash Owed: \u20A6$formatted",
+                                    style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.SemiBold),
                                     color = MaterialTheme.colorScheme.onPrimaryContainer
                                 )
-                                Row(
-                                    modifier = Modifier.fillMaxWidth(),
-                                    horizontalArrangement = Arrangement.SpaceBetween
-                                ) {
-                                    SummaryItem("Total", "$totalRecords", MaterialTheme.colorScheme.onPrimaryContainer)
-                                    SummaryItem("Active", "$activeCount", ActiveGreen)
-                                    SummaryItem("Inactive", "$inactiveCount", InactiveRed)
-                                }
-                                if (totalCashOwed > 0) {
-                                    val formatted = NumberFormat.getNumberInstance(Locale("en", "NG"))
-                                        .format(totalCashOwed)
-                                    Text(
-                                        "Total Cash Owed: \u20A6$formatted",
-                                        style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.SemiBold),
-                                        color = MaterialTheme.colorScheme.onPrimaryContainer
-                                    )
-                                }
                             }
                         }
                     }
-
-                    // Record items
-                    items(debtRecords, key = { it?.id ?: it.hashCode() }) { debtRecord ->
-                        RecordCard(
-                            vm = vm,
-                            debtRecord = debtRecord ?: DebtRecord(),
-                            navController = navController,
-                            selected = selectedItems.contains(debtRecord),
-                            selectedItems = selectedItems
-                        )
-                    }
-
-                    // Empty search result
-                    if (debtRecords.isEmpty() && searchQuery.isNotBlank()) {
-                        item {
-                            Box(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(32.dp),
-                                contentAlignment = Alignment.Center
-                            ) {
-                                Text(
-                                    "No records matching \"$searchQuery\"",
-                                    style = MaterialTheme.typography.bodyMedium,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                                )
-                            }
-                        }
-                    }
-
-                    item { Spacer(Modifier.height(10.dp)) }
                 }
+
+                // Record items
+                items(debtRecords, key = { it?.id ?: it.hashCode() }) { debtRecord ->
+                    RecordCard(
+                        vm = vm,
+                        debtRecord = debtRecord ?: DebtRecord(),
+                        navController = navController,
+                        selected = selectedItems.contains(debtRecord),
+                        selectedItems = selectedItems
+                    )
+                }
+
+                // Empty search result
+                if (debtRecords.isEmpty() && searchQuery.isNotBlank()) {
+                    item {
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(32.dp),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Text(
+                                "No records matching \"$searchQuery\"",
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        }
+                    }
+                }
+
+                item { Spacer(Modifier.height(10.dp)) }
             }
-            if (alert.value) {
-                val context = LocalContext.current
-                DeleteCardsDialog(
-                    onDelete = {
-                        vm.deleteRecords(selectedItems)
-                        selectedItems.clear()
-                    },
-                    records = selectedItems,
-                    alert = alert,
-                    context = context
-                )
-            }
+        }
+        if (alert.value) {
+            val context = LocalContext.current
+            DeleteCardsDialog(
+                onDelete = {
+                    vm.deleteRecords(selectedItems)
+                    selectedItems.clear()
+                },
+                records = selectedItems,
+                alert = alert,
+                context = context
+            )
         }
     }
 }

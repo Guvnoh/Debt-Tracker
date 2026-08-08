@@ -43,7 +43,7 @@ fun BottomNav(recordsViewModel: RecordsViewmodel, addDebtorViewModel: AddDebtorV
         bottomBar = {
             NavigationBar(
                 tonalElevation = 4.dp,
-                containerColor = MaterialTheme.colorScheme.surface
+                containerColor = MaterialTheme.colorScheme.background
             ) {
                 val navBackStackEntry by navController.currentBackStackEntryAsState()
                 val currentRoute = navBackStackEntry?.destination?.route
@@ -107,7 +107,8 @@ fun BottomNav(recordsViewModel: RecordsViewmodel, addDebtorViewModel: AddDebtorV
 //                Records(vm = viewModel, navController = navController)
 //            }
             composable(Screen.UpdateDebtScreen.route) {
-                DebtDetailsScreen(navController = navController, debtRecord = recordsViewModel.selectedRecord.value)
+                val debtRecord by recordsViewModel.selectedRecord
+                DebtDetailsScreen(navController = navController, debtRecord = debtRecord)
             }
         }
     }

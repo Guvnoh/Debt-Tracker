@@ -22,6 +22,8 @@ import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.KeyboardArrowUp
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -29,6 +31,7 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -72,6 +75,7 @@ fun DebtDetailsScreen(
     var debtToDelete by remember { mutableStateOf("") }
     var reduceItemKey by remember { mutableStateOf<String?>(null) }
     var reduceItemIsCash by remember { mutableStateOf(false) }
+    var showEditNotesDialog by remember { mutableStateOf(false) }
     val isActive = debtRecord?.debt?.active != false
 
     Scaffold(
@@ -147,11 +151,25 @@ fun DebtDetailsScreen(
                         )
                     }
 
-                    Text(
-                        text = "${it.debt?.dateAdded ?: ""}, ${it.debt?.timeAdded ?: ""}",
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    )
+                    val hasBeenUpdated = !it.oldRecords.isNullOrEmpty()
+                    val originalDate = if (hasBeenUpdated)
+                        it.oldRecords!!.first()
+                    else it.debt
+
+                    Column(horizontalAlignment = Alignment.End) {
+                        Text(
+                            text = "Added: ${originalDate?.dateAdded ?: ""}, ${originalDate?.timeAdded ?: ""}",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        )
+                        if (hasBeenUpdated) {
+                            Text(
+                                text = "Updated: ${it.debt?.dateAdded ?: ""}, ${it.debt?.timeAdded ?: ""}",
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            )
+                        }
+                    }
                 }
 
                 // Item count
@@ -161,6 +179,48 @@ fun DebtDetailsScreen(
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
+
+                // Notes section
+                Card(
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(16.dp),
+                    elevation = CardDefaults.cardElevation(4.dp),
+                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
+                ) {
+                    Column(
+                        modifier = Modifier.padding(16.dp),
+                        verticalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text(
+                                "Notes",
+                                style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
+                                color = MaterialTheme.colorScheme.primary
+                            )
+                            IconButton(
+                                onClick = { showEditNotesDialog = true },
+                                modifier = Modifier.size(32.dp)
+                            ) {
+                                Icon(
+                                    Icons.Default.Edit,
+                                    contentDescription = "Edit notes",
+                                    modifier = Modifier.size(18.dp),
+                                    tint = MaterialTheme.colorScheme.primary
+                                )
+                            }
+                        }
+                        Text(
+                            text = it.notes?.ifBlank { "No notes added." } ?: "No notes added.",
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = if (it.notes.isNullOrBlank()) MaterialTheme.colorScheme.onSurfaceVariant
+                                    else MaterialTheme.colorScheme.onSurface
+                        )
+                    }
+                }
             }
 
             // No debt record
@@ -312,6 +372,21 @@ fun DebtDetailsScreen(
                 ) {
                     deleteRecordItemDialog = false
                 }
+            }
+        }
+
+        // Edit notes dialog
+        if (showEditNotesDialog) {
+            debtRecord?.let { record ->
+                EditNotesDialog(
+                    currentNotes = record.notes ?: "",
+                    onDismiss = { showEditNotesDialog = false },
+                    onSave = { newNotes ->
+                        RecordsRepository.updateNotes(record, newNotes)
+                        record.notes = newNotes
+                        showEditNotesDialog = false
+                    }
+                )
             }
         }
 
@@ -482,6 +557,41 @@ private fun HistorySection(oldRecords: List<Debt>) {
             }
         }
     }
+}
+
+@Composable
+private fun EditNotesDialog(
+    currentNotes: String,
+    onDismiss: () -> Unit,
+    onSave: (String) -> Unit
+) {
+    var text by remember { mutableStateOf(currentNotes) }
+
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text("Edit Notes") },
+        text = {
+            OutlinedTextField(
+                value = text,
+                onValueChange = { text = it },
+                label = { Text("Notes / Comments") },
+                modifier = Modifier.fillMaxWidth(),
+                minLines = 3,
+                maxLines = 6,
+                singleLine = false
+            )
+        },
+        confirmButton = {
+            Button(onClick = { onSave(text) }) {
+                Text("Save")
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text("Cancel")
+            }
+        }
+    )
 }
 
 @RequiresApi(Build.VERSION_CODES.O)

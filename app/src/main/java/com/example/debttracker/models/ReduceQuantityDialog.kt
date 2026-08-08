@@ -24,7 +24,10 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
+import com.example.debttracker.formatters.CashVisualTransformation
+import com.example.debttracker.formatters.formatWithCommas
 import com.example.debttracker.repositories.RecordsRepository
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -68,12 +71,13 @@ fun ReduceQuantityDialog(
 
                 OutlinedTextField(
                     value = newValue,
-                    onValueChange = { newValue = it },
+                    onValueChange = { newValue = if (isCash) it.filter { c -> c.isDigit() } else it },
                     label = { Text("New value") },
                     prefix = if (isCash) {{ Text("₦") }} else null,
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                     singleLine = true,
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier.fillMaxWidth(),
+                    visualTransformation = if (isCash) CashVisualTransformation() else VisualTransformation.None
                 )
 
                 Spacer(modifier = Modifier.height(24.dp))
@@ -88,12 +92,7 @@ fun ReduceQuantityDialog(
                     TextButton(
                         onClick = {
                             val formatted = if (isCash && newValue.isNotBlank()) {
-                                // Format cash with naira sign and commas
-                                val num = newValue.replace(",", "").toDoubleOrNull()
-                                if (num != null) {
-                                    val df = android.icu.text.DecimalFormat("#,###")
-                                    "₦${df.format(num)}"
-                                } else newValue
+                                "₦${formatWithCommas(newValue)}"
                             } else {
                                 newValue
                             }

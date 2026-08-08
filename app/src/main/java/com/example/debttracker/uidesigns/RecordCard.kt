@@ -90,10 +90,13 @@ fun RecordCard(
 
             Spacer(Modifier.height(4.dp))
 
+            val hasBeenUpdated = !debtRecord.oldRecords.isNullOrEmpty()
             Text(
-                text = "Added: ${debtRecord.debt?.dateAdded ?: "N/A"}",
+                text = if (hasBeenUpdated) "Updated: ${debtRecord.debt?.dateAdded ?: "N/A"}"
+                       else "Added: ${debtRecord.debt?.dateAdded ?: "N/A"}",
                 style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.padding(start = 18.dp)
             )
 
             // Item preview - show first 3 items
@@ -101,13 +104,17 @@ fun RecordCard(
             if (!items.isNullOrEmpty()) {
                 Spacer(Modifier.height(8.dp))
 
+                // 10.dp (dot) + 8.dp (spacer) to align with the name text
+                val itemStartPadding = Modifier.padding(start = 18.dp)
+
                 // Show cash prominently if present
                 val cashAmount = items["Cash"]
                 if (cashAmount != null) {
                     Text(
                         text = "$cashAmount",
                         style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.SemiBold),
-                        color = MaterialTheme.colorScheme.tertiary
+                        color = MaterialTheme.colorScheme.tertiary,
+                        modifier = itemStartPadding
                     )
                 }
 
@@ -120,7 +127,8 @@ fun RecordCard(
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                         maxLines = 1,
-                        overflow = TextOverflow.Ellipsis
+                        overflow = TextOverflow.Ellipsis,
+                        modifier = itemStartPadding
                     )
                 }
 
@@ -130,7 +138,8 @@ fun RecordCard(
                     Text(
                         text = "+$remaining more items",
                         style = MaterialTheme.typography.labelSmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
+                        color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f),
+                        modifier = itemStartPadding
                     )
                 }
             }

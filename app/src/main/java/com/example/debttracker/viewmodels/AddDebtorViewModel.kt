@@ -27,6 +27,9 @@ class AddDebtorViewModel: ViewModel() {
     private var _cash: MutableState<String> = mutableStateOf("")
     val cash: State<String> = _cash
 
+    private var _notes: MutableState<String> = mutableStateOf("")
+    val notes: State<String> = _notes
+
     private var _bottleRows: MutableStateFlow<List<RowData>> = MutableStateFlow(
         listOf(RowData("", "")))
     val bottleRows: StateFlow<List<RowData>> = _bottleRows
@@ -47,7 +50,11 @@ class AddDebtorViewModel: ViewModel() {
     }
 
     fun setCashAmount(amount:String){
-        _cash.value = amount
+        _cash.value = amount.filter { it.isDigit() }
+    }
+
+    fun setNotes(text: String){
+        _notes.value = text
     }
 
     private fun clearDetails(index: Int, type: RowType){
@@ -64,6 +71,7 @@ class AddDebtorViewModel: ViewModel() {
     fun clearAll(){
         _customerName.value = ""
         _cash.value = ""
+        _notes.value = ""
         _emptiesRows.value = listOf(RowData("",""))
         _bottleRows.value = listOf(RowData("",""))
         _plasticRows.value = listOf(RowData("",""))
@@ -169,12 +177,15 @@ class AddDebtorViewModel: ViewModel() {
         val recordRoot = DatabaseRefs.root.push()
         val key = recordRoot.key
         val debtorToMap =
-            mutableMapOf(
+            mutableMapOf<String, Any?>(
                 "id" to key,
                 "timeStamp" to ServerValue.TIMESTAMP,
                 "name" to _customerName.value,
                 "debt" to debt
             )
+        if (_notes.value.isNotBlank()) {
+            debtorToMap["notes"] = _notes.value
+        }
         recordRoot.setValue(debtorToMap)
         Toast.makeText(context, "Debt record added!", Toast.LENGTH_SHORT).show()
 

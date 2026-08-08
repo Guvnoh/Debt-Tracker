@@ -43,6 +43,7 @@ import androidx.navigation.NavController
 import com.example.debttracker.Screen
 import com.example.debttracker.models.AddItemRow
 import com.example.debttracker.models.RowType
+import com.example.debttracker.formatters.CashVisualTransformation
 import com.example.debttracker.viewmodels.AddDebtorViewModel
 
 @RequiresApi(Build.VERSION_CODES.O)
@@ -51,6 +52,15 @@ fun AddDebt(navController: NavController, viewModel: AddDebtorViewModel) {
 
     val name by viewModel.customerName
     val cash by viewModel.cash
+    val notes by viewModel.notes
+    val bottleRows by viewModel.bottleRows.collectAsState()
+    val emptiesRows by viewModel.emptiesRows.collectAsState()
+    val plasticRows by viewModel.plasticRows.collectAsState()
+
+    val hasContent = name.isNotBlank() || cash.isNotBlank() || notes.isNotBlank()
+            || bottleRows.any { it.qty.isNotBlank() || it.name.isNotBlank() }
+            || emptiesRows.any { it.qty.isNotBlank() || it.name.isNotBlank() }
+            || plasticRows.any { it.qty.isNotBlank() || it.name.isNotBlank() }
 
     val context = LocalContext.current
 
@@ -75,17 +85,19 @@ fun AddDebt(navController: NavController, viewModel: AddDebtorViewModel) {
                 fontWeight = FontWeight.SemiBold,
                 color = MaterialTheme.colorScheme.primary
             )
-            OutlinedButton(
-                onClick = { viewModel.clearAll() },
-                shape = RoundedCornerShape(8.dp)
-            ) {
-                Icon(
-                    Icons.Default.Clear,
-                    contentDescription = "Clear all",
-                    modifier = Modifier.size(18.dp)
-                )
-                Spacer(Modifier.width(4.dp))
-                Text("Clear All", style = MaterialTheme.typography.labelSmall)
+            if (hasContent) {
+                OutlinedButton(
+                    onClick = { viewModel.clearAll() },
+                    shape = RoundedCornerShape(8.dp)
+                ) {
+                    Icon(
+                        Icons.Default.Clear,
+                        contentDescription = "Clear all",
+                        modifier = Modifier.size(18.dp)
+                    )
+                    Spacer(Modifier.width(4.dp))
+                    Text("Clear All", style = MaterialTheme.typography.labelSmall)
+                }
             }
         }
 
@@ -93,11 +105,12 @@ fun AddDebt(navController: NavController, viewModel: AddDebtorViewModel) {
         Card(
             modifier = Modifier.fillMaxWidth(),
             elevation = CardDefaults.cardElevation(4.dp),
-            shape = RoundedCornerShape(16.dp)
+            shape = RoundedCornerShape(16.dp),
+            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
         ) {
             Column(
                 modifier = Modifier.padding(20.dp),
-                verticalArrangement = Arrangement.spacedBy(12.dp)
+                verticalArrangement = Arrangement.spacedBy(12.dp),
             ) {
 
                 Text(
@@ -122,27 +135,38 @@ fun AddDebt(navController: NavController, viewModel: AddDebtorViewModel) {
                     prefix = { Text("\u20A6 ") },
                     modifier = Modifier.fillMaxWidth(),
                     singleLine = true,
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                    visualTransformation = CashVisualTransformation()
+                )
+
+                OutlinedTextField(
+                    value = notes,
+                    onValueChange = { viewModel.setNotes(it) },
+                    label = { Text("Notes / Comments") },
+                    modifier = Modifier.fillMaxWidth(),
+                    minLines = 2,
+                    maxLines = 4,
+                    singleLine = false
                 )
             }
         }
 
         // Bottle Section Card
-        SectionCard(title = "Bottles", icon = "\uD83C\uDF7A") {
+        SectionCard(title = "Bottles") {
             viewModel.bottleRows.collectAsState().value.forEachIndexed { index, _ ->
                 AddItemRow(index, viewModel, RowType.Bottles)
             }
         }
 
         // Empties Section
-        SectionCard(title = "Empties", icon = "\uD83E\uDEE7") {
+        SectionCard(title = "Empties") {
             viewModel.emptiesRows.collectAsState().value.forEachIndexed { index, _ ->
                 AddItemRow(index, viewModel, RowType.Empties)
             }
         }
 
         // Plastics Section
-        SectionCard(title = "Plastics", icon = "\uD83E\uDEF9") {
+        SectionCard(title = "Plastics") {
             viewModel.plasticRows.collectAsState().value.forEachIndexed { index, _ ->
                 AddItemRow(index, viewModel, RowType.Plastics)
             }
@@ -171,21 +195,19 @@ fun AddDebt(navController: NavController, viewModel: AddDebtorViewModel) {
 @Composable
 private fun SectionCard(
     title: String,
-    icon: String,
     content: @Composable () -> Unit
 ) {
     Card(
         modifier = Modifier.fillMaxWidth(),
         elevation = CardDefaults.cardElevation(4.dp),
-        shape = RoundedCornerShape(16.dp)
+        shape = RoundedCornerShape(16.dp),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
     ) {
         Column(
             modifier = Modifier.padding(20.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
             Row(verticalAlignment = Alignment.CenterVertically) {
-                Text(icon, fontSize = 20.sp)
-                Spacer(Modifier.width(8.dp))
                 Text(
                     title,
                     style = MaterialTheme.typography.titleMedium,

@@ -2,9 +2,11 @@ package com.example.debttracker.repositories
 
 import android.util.Log
 import com.example.debttracker.DatabaseRefs
+import com.example.debttracker.formatters.TimeAndDate
 import com.example.debttracker.models.DebtRecord
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
+import com.google.firebase.database.ServerValue
 import com.google.firebase.database.ValueEventListener
 
 object RecordsRepository {
@@ -20,10 +22,21 @@ object RecordsRepository {
     }
 
     fun removeSingleDebt(debtRecord: DebtRecord, debt: String){
-        //gets the id of the debt record
-        val debtId = debtRecord.id?.let { recordsDB.child(it) }
-        //finds and removes a single item from a list of debt items in one record
-        debtId?.child("debt")?.child("itemsOwed")?.child(debt)?.removeValue()
+        val id = debtRecord.id ?: return
+        val ref = recordsDB.child(id)
+
+        // Snapshot current debt to oldRecords
+        val oldDebtList = debtRecord.oldRecords ?: emptyList()
+        val newDebtList = oldDebtList + debtRecord.debt
+        ref.child("oldRecords").setValue(newDebtList)
+
+        // Remove the item
+        ref.child("debt").child("itemsOwed").child(debt).removeValue()
+
+        // Update timestamp and date/time
+        ref.child("timeStamp").setValue(ServerValue.TIMESTAMP)
+        ref.child("debt").child("dateAdded").setValue(TimeAndDate().GetDateString())
+        ref.child("debt").child("timeAdded").setValue(TimeAndDate().GetTimeString())
     }
     fun deleteDebtRecord(key: String){
         //deletes an entire record using the id
@@ -51,7 +64,30 @@ object RecordsRepository {
         } else {
             ref.child("debt").child("itemsOwed").child(itemKey).setValue(newValue)
         }
+
+        // Update timestamp so record moves to top, and update date/time
+        ref.child("timeStamp").setValue(ServerValue.TIMESTAMP)
+        ref.child("debt").child("dateAdded").setValue(TimeAndDate().GetDateString())
+        ref.child("debt").child("timeAdded").setValue(TimeAndDate().GetTimeString())
     }
+    fun updateNotes(debtRecord: DebtRecord, newNotes: String) {
+        val id = debtRecord.id ?: return
+        val ref = recordsDB.child(id)
+
+        // Snapshot current debt to oldRecords
+        val oldDebtList = debtRecord.oldRecords ?: emptyList()
+        val newDebtList = oldDebtList + debtRecord.debt
+        ref.child("oldRecords").setValue(newDebtList)
+
+        // Update notes
+        ref.child("notes").setValue(newNotes.ifBlank { null })
+
+        // Update timestamp and date/time
+        ref.child("timeStamp").setValue(ServerValue.TIMESTAMP)
+        ref.child("debt").child("dateAdded").setValue(TimeAndDate().GetDateString())
+        ref.child("debt").child("timeAdded").setValue(TimeAndDate().GetTimeString())
+    }
+
     fun getDBDebtRecords(onListReady: (List<DebtRecord?>) -> Unit){
         recordsDB.orderByChild("timeStamp").addValueEventListener( object: ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {

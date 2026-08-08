@@ -8,9 +8,9 @@ import com.example.debttracker.models.DebtRecord
 import com.example.debttracker.repositories.RecordsRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.combine
 
 class RecordsViewmodel : ViewModel() {
+    private var _selectedRecordId = MutableStateFlow<String?>(null)
     var selectedRecord = mutableStateOf<DebtRecord?>(null)
     private val _debtors = MutableStateFlow<List<DebtRecord?>>(emptyList())
     val debtors: StateFlow<List<DebtRecord?>> = _debtors
@@ -74,6 +74,10 @@ class RecordsViewmodel : ViewModel() {
             _debtors.value = debtMap
             applyFilter()
             updateStats()
+            // Keep selected record in sync with live data
+            _selectedRecordId.value?.let { id ->
+                selectedRecord.value = debtMap.firstOrNull { it?.id == id }
+            }
         }
     }
 
@@ -97,6 +101,7 @@ class RecordsViewmodel : ViewModel() {
         } else if (selectedItems.isNotEmpty() && !selectedItems.contains(record)) {
             selectedItems.add(record)
         } else {
+            _selectedRecordId.value = record.id
             selectedRecord.value = record
             navController.navigate(Screen.UpdateDebtScreen.route) {
                 launchSingleTop = true
